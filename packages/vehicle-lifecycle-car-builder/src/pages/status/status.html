@@ -58,13 +58,23 @@
       </span>
       <span class="progress-selected">{{stage[3]}}</span>
     </h3>
+
+    <div class="connector-container">
+      <span class="connector" [hidden]="!stage[4]"></span>
+    </div>
+
+    <h3 [ngClass]="{selected: stage[4]}">
+      <img [hidden]="stage[4]" src="assets/circle_empty.svg">
+      <img [hidden]="!stage[4]" src="assets/circle_tick.svg">
+      <span>
+        Delivery
+      </span>
+      <span class="progress-selected">{{stage[4]}}</span>
+    </h3>
+
   </ion-card>
 
-  <div class="connector-container hidden-connector" [hidden]="!stage[4]">
-    <span class="connector"></span>
-  </div>
-
   <ion-card>
-    <button ion-button color="white" [ngClass]="{selected: stage[4]}">Delivery <img src="assets/diamond.svg"></button>
+    <button (click)="insure()" [disabled]="!stage[4]" ion-button color="secondary" ngClass="{selected: stage[4]}" >Insure me <img src="assets/arrow_right.svg"></button>
   </ion-card>
 </ion-content>

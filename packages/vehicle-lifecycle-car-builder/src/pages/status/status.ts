@@ -18,9 +18,15 @@ export class StatusPage {
   stage: Array<String>;
   relativeDate: any;
   config: any;
+  ready: Promise<any>;
+  vin: any;
+  websocketInsurance: WebSocket;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, private http: Http) {
     this.car = navParams.get('car');
+
+    console.log(this.car)
+
     this.stage = [Date.now() + ''];
 
     this.relativeDate = function(input, start) {
@@ -60,26 +66,75 @@ export class StatusPage {
         openWebSocket();
       }
 
+      this.vin = 123456127;
+
       websocket.onmessage = (event) => {
         if (event.data === '__pong__') {
           return;
         }
 
         var status = JSON.parse(event.data);
+        console.log(status);
         if (status.orderStatus === statuses[0]) {
           this.stage[0] = status.timestamp;
         } else {
           let i = statuses.indexOf(status.orderStatus);
+          if(status.orderStatus === statuses[2])
+          {
+            this.vin = status.order.vehicleDetails.vin;
+          }
           this.stage[i] = this.relativeDate(status.timestamp, this.stage[0]);
         }
       };
     }
+    
+    var openInsuranceWebSocket = () => {
+      var webSocketInsuranceURL;
+      if (this.config.useLocalWS){
+        webSocketInsuranceURL = 'ws://' + location.host + '/ws/requestpolicy';
+      } else {
+        webSocketInsuranceURL = this.config.nodeRedBaseURL+'/ws/requestpolicy';
+      }
+      console.log('connecting websocket', webSocketInsuranceURL);
+      this.websocketInsurance = new WebSocket(webSocketInsuranceURL);
 
-    this.loadConfig()
+      this.websocketInsurance.onopen = function () {
+        console.log('insurance websocket open!');
+      };
+
+      this.websocketInsurance.onclose = function() {
+        console.log('closed');
+        openInsuranceWebSocket();
+      }
+
+      this.websocketInsurance.onmessage = (event) => {
+        console.log("MESSAGE RECIEVED")
+      };
+    }
+
+    this.ready = this.loadConfig()
       .then((config) => {
         this.config = config;
         openWebSocket();
+        openInsuranceWebSocket();
       });
+  }
+
+  insure() {
+    
+    var full_car = {};
+    Object.keys(this.car).forEach((key) => full_car[key] = this.car[key]);
+    full_car["vin"] = this.vin;
+
+    var order = {
+      vehicleDetails: full_car,
+      requestee: "resource:org.acme.vehicle.lifecycle.PrivateOwner#dan",
+      policyType: "Fully Comprehensive"
+    };
+
+    this.ready.then(() => {
+      this.websocketInsurance.send(JSON.stringify(order));
+    });
   }
 
   loadConfig(): Promise<any> {

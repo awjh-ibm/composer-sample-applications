@@ -98,6 +98,10 @@ export class BuilderPage {
       VIN: ''
     };
 
+    var full_car = {};
+    Object.keys(this.car).forEach((key) => full_car[key] = this.car[key]);
+    Object.keys(this.states).forEach((key) => full_car[key] = this.states[key]);
+
     var order = {
       $class: 'org.acme.vehicle.lifecycle.manufacturer.PlaceOrder',
       vehicleDetails: vehicleDetails,
@@ -110,7 +114,7 @@ export class BuilderPage {
       this.websocket.send(JSON.stringify(order));
 
       this.navController.push(StatusPage, {
-        car: this.car
+        car: full_car
       });
     });
   }
