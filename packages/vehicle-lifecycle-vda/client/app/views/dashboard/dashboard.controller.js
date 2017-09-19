@@ -2,6 +2,7 @@ angular.module('bc-vda')
 
 .controller('DashboardCtrl', ['$scope', '$http', function ($scope, $http) {
 
+
   $scope.chain = [];
   $scope.transactions = [];
 

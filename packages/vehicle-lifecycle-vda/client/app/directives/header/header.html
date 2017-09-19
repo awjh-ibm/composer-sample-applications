@@ -31,8 +31,8 @@
       </div>
 
     </div>
-    <div class="bc-vda-stats-item">
-      <p class="bc-vda-stats-item-header">OWNER ISSUED</p>
+    <div class="bc-vda-stats-item" ng-class="{active:isActive('/asset_activity')}" ui-sref="asset_activity">
+      <p class="bc-vda-stats-item-header">ASSET ACTIVITY</p>
       <div class="bc-vda-item-value-container">
         <p class="bc-vda-stats-item-value">{{v5c_issued | number:0}}</p>
         <img src="assets/images/up.svg" class="bc-vda-stats-item-arrow" />

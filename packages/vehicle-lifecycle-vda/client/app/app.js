@@ -22,7 +22,12 @@ angular.module('bc-vda', [
     .state('suspicious_vehicles', {
       url: '/suspicious_vehicles',
       templateUrl: 'app/views/suspicious_vehicles/suspicious_vehicles.html',
-      controller: 'SuspiciousVehiclesCtrl',
+      controller: 'SuspiciousVehiclesCtrl'
+    })
+    .state('asset_activity', {
+      url: '/asset_activity',
+      templateUrl: 'app/views/asset_activity/asset_activity.html',
+      controller: 'AssetActivityCtrl'
     })
 
   NotificationProvider.setOptions({
