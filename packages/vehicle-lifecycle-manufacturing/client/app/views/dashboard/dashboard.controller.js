@@ -3,7 +3,8 @@ angular.module('bc-manufacturer')
 .controller('DashboardCtrl', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
   $scope.statuses = ['PLACED', 'SCHEDULED_FOR_MANUFACTURE', 'VIN_ASSIGNED', 'OWNER_ASSIGNED', 'DELIVERED'];
 
-  $http.get('vehicles').then(function(response, err) {
+  // USED TO USE /vehicle OF THIS SERVER HOWEVER THAT STOPPED WORKING (UNKNOWN REASON) THAT PAGE SIMPLY PERFORMED A GET REQUEST ON THE URL BELOW SO HARDCODED THAT NOW
+  $http.get('http://localhost:3000/api/Order').then(function(response, err) {
     console.log(response);
     if (err) {
       console.log(err);
@@ -61,7 +62,30 @@ angular.module('bc-manufacturer')
 
   var placeOrder;
   var updateOrder;
+  var createUsage;
   var destroyed = false;
+
+  function openUsageRecordWebSocket() {
+    createUsage = new WebSocket("ws://"+ location.host + "/ws/createusagerecord")
+
+    createUsage.onopen = function () {
+      console.log('createUsageRecord websocket open!');
+      // Notification('PlaceOrder WebSocket connected');
+    };
+
+    createUsage.onclose = function () {
+      console.log('closed');
+      // Notification('PlaceOrder WebSocket disconnected');
+      if (!destroyed) {
+        openPlaceOrderWebSocket();
+      }
+    }
+
+    createUsage.onmessage = function(event) {
+      console.log("CREATED USAGE RECORD");
+    }
+
+  }
 
   function openPlaceOrderWebSocket() {
     placeOrder = new WebSocket('ws://' + location.host + '/ws/placeorder');
@@ -148,6 +172,7 @@ angular.module('bc-manufacturer')
 
   openPlaceOrderWebSocket();
   openUpdateOrderWebSocket();
+  openUsageRecordWebSocket()
 
   var generateVIN = function() {
     function s4() {
@@ -180,6 +205,15 @@ angular.module('bc-manufacturer')
     status.orderStatus = $scope.statuses[count];
     status.timestamp =  Date.now();
     updateOrder.send(JSON.stringify(status));
+    if(status.orderStatus == $scope.statuses[2])
+    {
+      var usageRecord = {
+        "$class": "org.vda.CreateUsageRecord",
+        "usageID": "USAGE"+status.vin,
+        "vin": status.vin,
+      }
+      createUsage.send(JSON.stringify(usageRecord))
+    }
   }
 
   $scope.start = function(order) {

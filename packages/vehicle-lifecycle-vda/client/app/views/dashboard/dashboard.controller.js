@@ -104,6 +104,7 @@ angular.module('bc-vda')
 
   openPlaceOrderWebSocket();
   openUpdateOrderWebSocket();
+  //openPolicyWebSocket();
 
   $scope.addBlock = function (tranactionId, type, submitter, status) {
     var id = $scope.chain[$scope.chain.length - 1].id + 1;

@@ -40,15 +40,34 @@ table{
     border-bottom: 2px solid #e3ecec;
     padding-bottom: 20px;
     color: black;
+    white-space: nowrap;
+    text-align: center;
 }
-.cell:first-child
+.cell span
+{
+    display: inline-block;
+}
+.col1
 {
     width: 33%;
+    text-align: left;
+}
+.col2
+{
+    padding-right: 50px;
+}
+.col4
+{
+    padding-left: 50px;
+}
+.cell:last-child
+{
+    width: 100%;
 }
 
 .validator1{
    float: left;
-   padding-bottom: 5px;
+   padding: 0 10px 5px 10px;
 }
 
 .insurer {
@@ -64,15 +83,6 @@ table{
     border-bottom: 2px solid #e4adea;
 }
 
-.sign{
-    position: absolute;
-    float: left;
-    margin-left: 175px;
-}
-
 .validator2{
-    position: absolute;
-    float: left;
-    margin-left: 250px;
-    padding-bottom: 5px;
+    padding: 0 10px 5px 10px;
 }
