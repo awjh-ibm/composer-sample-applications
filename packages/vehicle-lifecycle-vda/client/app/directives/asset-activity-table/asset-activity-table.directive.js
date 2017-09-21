@@ -6,7 +6,8 @@ angular.module('bc-vda')
     replace: true,
     templateUrl: 'app/directives/asset-activity-table/asset-activity-table.html',
     scope: {
-      transactions: '='
+      transactions: '=',
+      newrow: '='
     },
     controller: ['$scope', function($scope) {
       $scope.order = {

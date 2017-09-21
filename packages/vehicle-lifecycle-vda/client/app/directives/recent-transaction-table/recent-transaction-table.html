@@ -17,7 +17,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="t in transactions | orderBy: order.key : order.reverse">
+			<tr ng-repeat="t in transactions | orderBy: order.key : order.reverse" class="{{ t.transaction_class }}">
 				<td>{{ t.timestamp | date:'medium' }}</td>
 				<td>{{ t.transaction_id }}</td>
 				<td>{{ t.transaction_type }}</td>

@@ -6,15 +6,31 @@
 .title{
     padding-top: 20px;
     font-family:WorkSans-SemiBold;
-    font-size:15px;
+    font-size:18px;
     color:#010610;
     letter-spacing:0;
     text-align:left;
 }
 
+.times
+{
+    float: right;
+    font-size: 15;
+}
+
+.times .active {
+    color: #3ab0ee;
+    opacity: 1 !important;
+}
+
+.times .time
+{
+    opacity: 0.5;
+}
+
 .names{
     opacity:0.5;
-    font-family:WorkSans;
+    font-family:WorkSans-SemiBold;
     font-size:15px;
     color:#010610;
     letter-spacing:0;
@@ -34,7 +50,25 @@ table{
     border-collapse: collapse;
     width: 100%;
 }
-
+@keyframes grey-to-white
+{  
+    0% { background-color: #e3ecec; }
+    100% { background-color: transparent; }
+}
+.existing-row:hover td
+{
+    background-color: #e3ecec;
+}
+.new-row:hover td
+{
+    background-color: #e3ecec;
+}
+.new-row:nth-child(2) td
+{
+    animation-name: grey-to-white;  
+    animation-iteration-count: 1;  
+    animation-duration: 2s; 
+}
 .cell{
     padding-top: 20px;
     border-bottom: 2px solid #e3ecec;
@@ -46,10 +80,12 @@ table{
 .cell span
 {
     display: inline-block;
+    text-transform: capitalize;
 }
 .col1
 {
     width: 33%;
+    padding-right: 100px; 
     text-align: left;
 }
 .col2
@@ -66,7 +102,6 @@ table{
 }
 
 .validator1{
-   float: left;
    padding: 0 10px 5px 10px;
 }
 

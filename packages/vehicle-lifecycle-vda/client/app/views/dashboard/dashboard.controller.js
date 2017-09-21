@@ -17,17 +17,29 @@ angular.module('bc-vda')
         var type = split[split.length - 1];
         var time = Date.parse(transaction.timestamp);
 
+        var transaction_submitter = "Arium Vehicles"
+        switch(type)
+        {
+          case "SetupDemo": transaction_submitter = "Admin"; break;
+          case "PlaceOrder": transaction_submitter = "Paul Harris"; break;
+          case "CreatePolicy": transaction_submitter = "Prince Insurance"; break;
+          case "AddUsageEvent": transaction_submitter = "Vehicle ("+transaction.vin+")"; break;
+        }
+
         $scope.transactions.push({
           timestamp: time,
           transaction_id: transaction.transactionId,
           transaction_type: type,
-          transaction_submitter: type === 'SetupDemo' ? 'Liam Grace' : 'Arium Vehicles'
+          transaction_submitter: transaction_submitter,
+          transaction_class: "existing-row"
         });
+
+        var status = (type == 'AddUsageEvent') ? transaction.usageEvent.eventType : transaction.orderStatus
 
         return {
           transID: transaction.transactionId,
           type: type,
-          status: transaction.orderStatus,
+          status: status,
           time: time
         };
       });
@@ -47,6 +59,9 @@ angular.module('bc-vda')
 
   var placeOrder;
   var updateOrder;
+  var createPolicy;
+  var createUsageRecord;
+  var addUsageEvent;
   var destroyed = false;
 
   function openPlaceOrderWebSocket() {
@@ -71,7 +86,7 @@ angular.module('bc-vda')
       }
 
       var order = JSON.parse(event.data);
-      $scope.addBlock(order.transactionId, 'PlaceOrder', 'Arium Vehicles');
+      $scope.addBlock(order.transactionId, 'PlaceOrder', 'Paul Harris');
       $scope.$apply();
     }
   }
@@ -102,9 +117,84 @@ angular.module('bc-vda')
     }
   }
 
+  function openPolicyWebSocket() {
+    createPolicy = new WebSocket('ws://' + location.host + '/ws/createpolicy');
+
+    createPolicy.onopen = function() {
+      console.log('createPolicy websocket open!');
+      // Notification('PlaceOrder WebSocket connected');
+    };
+
+    createPolicy.onclose = function() {
+      console.log('closed');
+      // Notification('PlaceOrder WebSocket disconnected');
+      if (!destroyed) {
+        openPolicyWebSocket();
+      }
+    }
+
+    createPolicy.onmessage = function(event) {
+
+      var order = JSON.parse(event.data);
+      $scope.addBlock(order.eventId.split('#')[0], 'CreatePolicy', 'Prince Insurance');
+      $scope.$apply();
+    }
+  }
+  
+  function openCreateUsageWebSocket() {
+    console.log("HELLO WORLD")
+    createUsageRecord = new WebSocket('ws://' + location.host + '/ws/createusagerecord');
+
+    createUsageRecord.onopen = function() {
+      console.log('CreateUsageRecord websocket open!');
+      // Notification('PlaceOrder WebSocket connected');
+    };
+
+    createUsageRecord.onclose = function() {
+      console.log('closed');
+      // Notification('PlaceOrder WebSocket disconnected');
+      if (!destroyed) {
+        openCreateUsageWebSocket();
+      }
+    }
+
+    createUsageRecord.onmessage = function(event) {
+
+      var order = JSON.parse(event.data);
+      $scope.addBlock(order.eventId.split('#')[0], 'CreateUsageRecord', 'Arium Vehicles');
+      $scope.$apply();
+    }
+  }
+
+  function openAddUsageEventWebSocket() {
+    addUsageEvent = new WebSocket('ws://' + location.host + '/ws/addusageevent');
+
+    addUsageEvent.onopen = function() {
+      console.log('addusageevent websocket open!');
+      // Notification('PlaceOrder WebSocket connected');
+    };
+
+    addUsageEvent.onclose = function() {
+      console.log('closed');
+      // Notification('PlaceOrder WebSocket disconnected');
+      if (!destroyed) {
+        openCreateUsageWebSocket();
+      }
+    }
+
+    addUsageEvent.onmessage = function(event) {
+      
+      var order = JSON.parse(event.data);
+      $scope.addBlock(order.eventId.split('#')[0], 'AddUsageEvent', 'Vehicle('+order.vin+')', order.usageEvent.eventType);
+      $scope.$apply();
+    }
+  }
+
   openPlaceOrderWebSocket();
   openUpdateOrderWebSocket();
-  //openPolicyWebSocket();
+  openPolicyWebSocket();
+  openCreateUsageWebSocket();
+  openAddUsageEventWebSocket();
 
   $scope.addBlock = function (tranactionId, type, submitter, status) {
     var id = $scope.chain[$scope.chain.length - 1].id + 1;
@@ -118,7 +208,8 @@ angular.module('bc-vda')
       timestamp: Date.now(),
       transaction_id: tranactionId,
       transaction_type: type,
-      transaction_submitter: submitter
+      transaction_submitter: submitter,
+      transaction_class: "new-row"
     });
   };
 
