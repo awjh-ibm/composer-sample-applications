@@ -16,9 +16,9 @@ angular.module('bc-vda')
       var i = 138;
 
       $scope.chain = response.data.map(function(transaction) {
-        var split = transaction.$class.split('.');
+        var split = transaction.transactionType.split('.');
         var type = split[split.length - 1];
-        var time = Date.parse(transaction.timestamp);
+        var time = Date.parse(transaction.transactionTimestamp);
 
         var extraText = "";
 
@@ -26,7 +26,7 @@ angular.module('bc-vda')
 
         if(details.activity == "Alert")
         {
-          extraText = "Vehicle "+transaction.usageEvent.eventType.split('_').join(' ').toLowerCase()+" "
+          extraText = "Vehicle "+transaction.eventsEmitted[0].usageEvent.eventType.split('_').join(' ').toLowerCase()+" "
         }
 
         if(details.activity != "")

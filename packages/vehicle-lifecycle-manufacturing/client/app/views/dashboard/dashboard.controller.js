@@ -4,7 +4,7 @@ angular.module('bc-manufacturer')
   $scope.statuses = ['PLACED', 'SCHEDULED_FOR_MANUFACTURE', 'VIN_ASSIGNED', 'OWNER_ASSIGNED', 'DELIVERED'];
 
   // USED TO USE /vehicle OF THIS SERVER HOWEVER THAT STOPPED WORKING (UNKNOWN REASON) THAT PAGE SIMPLY PERFORMED A GET REQUEST ON THE URL BELOW SO HARDCODED THAT NOW
-  $http.get('http://localhost:3000/api/Order').then(function(response, err) {
+  $http.get('vehicles').then(function(response, err) {
     console.log(response);
     if (err) {
       console.log(err);

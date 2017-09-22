@@ -75,6 +75,6 @@
   </ion-card>
 
   <ion-card>
-    <button (click)="insure()" [disabled]="!stage[4]" ion-button color="secondary" ngClass="{selected: stage[4]}" >Insure me <img src="assets/arrow_right.svg"></button>
+    <button id="insureBtn" (click)="insure()" [disabled]="!(stage[4] && !stage[5])" ion-button color="secondary" ngClass="{selected: stage[4]}" >Insure me <img src="assets/arrow_right.svg" /></button>
   </ion-card>
 </ion-content>

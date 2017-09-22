@@ -122,19 +122,43 @@ export class StatusPage {
 
   insure() {
     
-    var full_car = {};
-    Object.keys(this.car).forEach((key) => full_car[key] = this.car[key]);
-    full_car["vin"] = this.vin;
+    document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Processing ..."
+    navigator.geolocation.getCurrentPosition(success, error)
 
-    var order = {
-      vehicleDetails: full_car,
-      requestee: "resource:org.acme.vehicle.lifecycle.PrivateOwner#dan",
-      policyType: "Fully Comprehensive"
-    };
+    this.stage[5] = "Insured";
 
-    this.ready.then(() => {
-      this.websocketInsurance.send(JSON.stringify(order));
-    });
+    var parent = this;
+    function success(position)
+    {
+      document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Request Sent &#10004;"
+      console.log(position)
+      var full_car = {};
+      Object.keys(parent.car).forEach((key) => full_car[key] = parent.car[key]);
+      full_car["vin"] = parent.vin;
+  
+      var order = {
+        vehicleDetails: full_car,
+        requestee: "resource:org.acme.vehicle.lifecycle.PrivateOwner#dan",
+        policyType: "Fully Comprehensive",
+        manufacturing_date: new Date(),
+        location:
+          {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          }
+      };
+  
+      parent.ready.then(() => {
+        parent.websocketInsurance.send(JSON.stringify(order));
+      });
+    }
+
+    function error(error)
+    {
+      parent.stage.splice(5,1)
+      document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Processing ..."
+      alert("Unable to get location, Please try again.")
+    }
   }
 
   loadConfig(): Promise<any> {

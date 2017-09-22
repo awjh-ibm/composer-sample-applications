@@ -6,6 +6,7 @@ angular.module('bc-vda')
   $scope.chain = [];
   $scope.transactions = [];
 
+  // USED TO CALL /transactions ON THIS SERVER BUT THAT STOPPED WORKING UNKNOWN REASON WHY
   $http.get('transactions').then(function(response, err) {
     if (err) {
       console.log(err);
@@ -13,9 +14,9 @@ angular.module('bc-vda')
       var i = 138;
 
       $scope.chain = response.data.map(function(transaction) {
-        var split = transaction.$class.split('.');
+        var split = transaction.transactionType.split('.');
         var type = split[split.length - 1];
-        var time = Date.parse(transaction.timestamp);
+        var time = Date.parse(transaction.transactionTimestamp);
 
         var transaction_submitter = "Arium Vehicles"
         switch(type)
@@ -23,7 +24,7 @@ angular.module('bc-vda')
           case "SetupDemo": transaction_submitter = "Admin"; break;
           case "PlaceOrder": transaction_submitter = "Paul Harris"; break;
           case "CreatePolicy": transaction_submitter = "Prince Insurance"; break;
-          case "AddUsageEvent": transaction_submitter = "Vehicle ("+transaction.vin+")"; break;
+          case "AddUsageEvent": transaction_submitter = "Vehicle ("+transaction.eventsEmitted[0].vin+")"; break;
         }
 
         $scope.transactions.push({
@@ -33,8 +34,16 @@ angular.module('bc-vda')
           transaction_submitter: transaction_submitter,
           transaction_class: "existing-row"
         });
+        
+        console.log(transaction)
 
-        var status = (type == 'AddUsageEvent') ? transaction.usageEvent.eventType : transaction.orderStatus
+        var status = "UNKNOWN"
+        try{
+          var status = (type == 'AddUsageEvent') ? transaction.eventsEmitted[0].usageEvent.eventType : transaction.eventsEmitted[0].order.orderStatus
+        }
+        catch(err)
+        {
+        }
 
         return {
           transID: transaction.transactionId,

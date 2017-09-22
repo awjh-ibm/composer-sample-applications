@@ -57,9 +57,9 @@ find . -type f | xargs chmod a+r
 docker pull hyperledger/composer-playground:{{ENV}}
 docker pull hyperledger/composer-cli:{{ENV}}
 docker pull hyperledger/composer-rest-server:{{ENV}}
-docker pull hyperledger/vehicle-lifecycle-vda:{{ENV}}
-docker pull hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
-docker pull hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
+#docker pull hyperledger/vehicle-lifecycle-vda:{{ENV}}
+#docker pull hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
+#docker pull hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
 docker pull nodered/node-red-docker
 
 # stop all the docker containers
@@ -97,8 +97,8 @@ read -d '' COMPOSER_CONFIG << EOF || true
 {
     "cards": [{
         "metadata": {
-            "name": "admin",
-            "enrollmentId": "admin",
+            "version": 1,
+            "userName": "admin",
             "enrollmentSecret": "adminpw",
             "businessNetwork": "vehicle-lifecycle-network"
         },
@@ -183,40 +183,63 @@ docker run \
 docker exec \
   -e NPM_CONFIG_LOGLEVEL=warn \
   node-red \
-  bash -c "cd /data && npm install node-red-contrib-composer@{{ENV}}"
+  bash -c "cd /data && npm install node-red-contrib-composer@{{ENV}} && npm install node-red-contrib-scx-ibmiotapp"
 docker restart node-red
 
 # Wait for Node-RED to start and initialize.
 sleep 10
 
 # Start the VDA application.
-docker run \
--d \
---network composer_default \
---name vda \
--e COMPOSER_BASE_URL=http://rest:3000 \
--e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 6001:6001 \
-hyperledger/vehicle-lifecycle-vda:{{ENV}}
+cd $(pwd)/../../vehicle-lifecycle-vda
+npm install
+bower install
+npm build
+npm start > /dev/null 2>&1 &
+# OLD DOCKER START FOR VDA
+#docker run \
+#-d \
+#--network composer_default \
+#--name vda \
+#-e COMPOSER_BASE_URL=http://rest:3000 \
+#-e NODE_RED_BASE_URL=ws://node-red:1880 \
+#-p 6001:6001 \
+#hyperledger/vehicle-lifecycle-vda:{{ENV}}
 
 # Start the manufacturing application.
-docker run \
--d \
---network composer_default \
---name manufacturing \
--e COMPOSER_BASE_URL=http://rest:3000 \
--e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 6002:6001 \
-hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
+cd $(pwd)/../vehicle-lifecycle-manufacturing
+npm install
+bower install
+npm build
+npm start > /dev/null 2>&1 &
+# OLD DOCKER START FOR MANUFACTURING
+#docker run \
+#-d \
+#--network composer_default \
+#--name manufacturing \
+#-e COMPOSER_BASE_URL=http://rest:3000 \
+#-e NODE_RED_BASE_URL=ws://node-red:1880 \
+#-p 6002:6001 \
+#hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
 
 # Start the car-builder application.
-docker run \
--d \
---network composer_default \
---name car-builder \
--e NODE_RED_BASE_URL=ws://node-red:1880 \
--p 8100:8100 \
-hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
+cd $(pwd)/../vehicle-lifecycle-car-builder
+npm install
+npm run build
+npm start > /dev/null 2>&1 &
+# OLD DOCKER START FOR CAR BUILDER
+#docker run \
+#-d \
+#--network composer_default \
+#--name car-builder \
+#-e NODE_RED_BASE_URL=ws://node-red:1880 \
+#-p 8100:8100 \
+#hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
+
+# Start the insurance view
+cd $(pwd)/../prince-insurance
+npm install
+npm build
+npm start > /dev/null 2>&1 &
 
 # Wait for the applications to start and initialize.
 sleep 10
@@ -225,12 +248,12 @@ sleep 10
 ##docker ps -aq | xargs docker rm -f
 
 # Open the playground in a web browser.
-URLS="http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100"
+URLS="http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100 http://localhost:4200"
 case "$(uname)" in
 "Darwin") open ${URLS}
           ;;
 "Linux")  if [ -n "$BROWSER" ] ; then
-	       	        $BROWSER http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100
+	       	        $BROWSER http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100 http://localhost:4200
 	        elif    which x-www-browser > /dev/null ; then
                   nohup x-www-browser ${URLS} < /dev/null > /dev/null 2>&1 &
           elif    which xdg-open > /dev/null ; then
@@ -238,7 +261,7 @@ case "$(uname)" in
                           xdg-open ${URL}
 	                done
           elif  	which gnome-open > /dev/null ; then
-	                gnome-open http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100
+	                gnome-open http://localhost:8080 http://localhost:3000/explorer/ http://localhost:1880 http://localhost:6001 http://localhost:6002 http://localhost:8100 http://localhost:4200
           #elif other types blah blah
 	        else
     	            echo "Could not detect web browser to use - please launch Composer Playground URL using your chosen browser ie: <browser executable name> http://localhost:8080 or set your BROWSER variable to the browser launcher in your PATH"
