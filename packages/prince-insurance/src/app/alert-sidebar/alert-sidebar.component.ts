@@ -61,5 +61,10 @@ export class AlertSidebarComponent implements OnInit {
   ngOnInit() {
   }
 
+  clear_stream()
+  {
+    document.getElementById('alert-block-holder').innerHTML = "";
+  }
+
 
 }

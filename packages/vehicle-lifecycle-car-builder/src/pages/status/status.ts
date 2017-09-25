@@ -123,6 +123,7 @@ export class StatusPage {
   insure() {
     
     document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Processing ..."
+    
     navigator.geolocation.getCurrentPosition(success, error)
 
     this.stage[5] = "Insured";
@@ -131,7 +132,6 @@ export class StatusPage {
     function success(position)
     {
       document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Request Sent &#10004;"
-      console.log(position)
       var full_car = {};
       Object.keys(parent.car).forEach((key) => full_car[key] = parent.car[key]);
       full_car["vin"] = parent.vin;
@@ -153,11 +153,25 @@ export class StatusPage {
       });
     }
 
-    function error(error)
-    {
+    function error(error) {
       parent.stage.splice(5,1)
-      document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Processing ..."
-      alert("Unable to get location, Please try again.")
+      document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Insure me <img src='assets/arrow_right.svg' />"
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          alert("Please allow geolocation.")
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("Location information is unavailable, your browser may be blocking them. Using a default location")
+          parent.stage[5] = "Insured";
+          success({"coords": {"latitude": 41.1149552, "longitude": -73.719111}})
+          break;
+        case error.TIMEOUT:
+          alert("The request to get user location timed out.")
+          break;
+        case error.UNKNOWN_ERROR:
+          alert("An unknown error occurred.")
+          break;
+      }
     }
   }
 

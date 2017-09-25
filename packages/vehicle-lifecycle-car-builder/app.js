@@ -1,14 +1,14 @@
 var express = require('express'),
   path = require('path'),
   WebSocket = require('ws'),
-  http = require('http'),
+  https = require('https'),
   url = require('url'),
   config = require('config');
 
 
 // create a new express server
 var app = express();
-var server = http.createServer(app);
+var server = https.createServer(app);
 
 app.get('/assets/config.json', (req, res, next) => {
   res.json({
