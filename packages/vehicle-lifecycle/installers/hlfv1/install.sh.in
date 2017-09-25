@@ -113,6 +113,9 @@ echo ${COMPOSER_CONNECTION_PROFILE} > .composer-connection-profiles/hlfv1/connec
 # Copy the credentials in.
 cp -r fabric-dev-servers/fabric-scripts/hlfv1/composer/creds .composer-credentials
 
+#Install bower so VDA and Manufacture Run
+npm install -g bower
+
 # Start the playground.
 docker run \
   -d \
