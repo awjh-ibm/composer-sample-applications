@@ -100,7 +100,6 @@ export class PopupComponent implements OnInit {
         };
         
         parent.websocket_request_policy.send(JSON.stringify(data));
-        console.log("HELLO WORLD")
         window.location.href = "/policy/"+policy_id;
       }
     };

@@ -167,12 +167,14 @@ export class StatusPage {
       document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Insure me <img src='assets/arrow_right.svg' />"
       switch(error.code) {
         case error.PERMISSION_DENIED:
-          alert("Please allow geolocation.")
+          console.log("Location information is unavailable, your browser may be blocking them. Using a default location")
+          parent.stage[5] = "Insured";
+          success({"coords": {"latitude": null, "longitude": null}})
           break;
         case error.POSITION_UNAVAILABLE:
-          alert("Location information is unavailable, your browser may be blocking them. Using a default location")
+          console.log("Location information is unavailable, your browser may be blocking them. Using a default location")
           parent.stage[5] = "Insured";
-          success({"coords": {"latitude": 41.1149552, "longitude": -73.719111}})
+          success({"coords": {"latitude": null, "longitude": null}})
           break;
         case error.TIMEOUT:
           alert("The request to get user location timed out.")

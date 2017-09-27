@@ -125,8 +125,7 @@ export class PolicyComponent {
         vin: "UNKNOWN"
       },
       vehicleStatus: "UNKNOWN",
-      owner: "resource:org.acme.vehicle.lifecycle.PrivateOwner#dan",
-      logEntries: []
+      owner: "resource:org.acme.vehicle.lifecycle.PrivateOwner#dan"
     }
 
     this.policy = {
@@ -140,24 +139,6 @@ export class PolicyComponent {
 
     //console.log(this.policy.vId)
     //this.car = this.policy.vId
-
-    var lat = localStorage.getItem("lat");
-    var long = localStorage.getItem("long");
-
-    if(lat === null || long === null)
-    {
-      lat = "41.1149552";
-      long = "-73.719111";
-    }
-
-    this.location = {
-      coords: {
-        accuracy: 20,
-        latitude: lat,
-        longitude: long
-      },
-      timestamp: 1505126421109
-    };
 
     // let webSocketURL = 'ws://localhost:1880/ws/location';
 
@@ -218,6 +199,49 @@ export class PolicyComponent {
 
     this.get_policy_details();
 
+    var lat = localStorage.getItem("lat");
+    var long = localStorage.getItem("long");
+
+    if(lat == "null" || long == "null")
+    {
+      console.log('NO LOCATION SENT');
+      var parent = this;
+      // LOCATION WAS NOT SUPPLIED TRY TO USE LOCATION OF INSURER TO POSITION MAP AS LIKELY DEMO RUNNING IN SAME PLACE 
+      navigator.geolocation.getCurrentPosition(function success(position){
+        parent.location = position;
+        parent.draw_map();
+      }, 
+      function error(error){ 
+        // COULDN'T GET LOCATION OF WHERE BROWSER IS RUNNING USE A DEFAULT
+        parent.location = {
+          coords: {
+            accuracy: 20,
+            latitude: 41.1149552,
+            longitude: -73.719111
+          },
+          timestamp: 1505126421109
+        };
+        parent.draw_map();
+      })
+    }
+    else
+    {
+      console.log('LOCATION SENT')
+      // USER SUPPLIED LOCATION
+      this.location = {
+        coords: {
+          accuracy: 20,
+          latitude: lat,
+          longitude: long
+        },
+        timestamp: 1505126421109
+      };
+      this.draw_map();
+    }
+  }
+
+  draw_map()
+  {
     let location = [
       this.location.coords.latitude,
       this.location.coords.longitude
