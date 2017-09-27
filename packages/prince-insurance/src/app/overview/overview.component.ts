@@ -30,30 +30,37 @@ export class OverviewComponent implements OnInit {
     };
 
     websocket.onmessage = event => {
-      this.vehicle_details = JSON.parse(event.data).vehicleDetails;
-      var location_data = JSON.parse(event.data).location;
-      var vehicle_date = JSON.parse(event.data).manufacturing_date;
-
-      (<HTMLInputElement>document.getElementById("vin")).value = this.vehicle_details.vin;
-
-      localStorage.setItem("lat", location_data.latitude);
-      localStorage.setItem("long", location_data.longitude); 
-
-      var date = new Date(vehicle_date);
-      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-      document.getElementById("reg-on").innerHTML = date.getDate()+" "+months[date.getMonth()]+" "+date.getFullYear();
-      document.getElementById("vehicle-type").innerHTML = this.vehicle_details.name;
-      document.getElementById("colour").innerHTML = this.vehicle_details.colour;
-      var extras = "";
-      for(var i = 0; i < this.vehicle_details.extras.length; i++)
+      if(JSON.parse(event.data).request_granted)
       {
-        extras += this.vehicle_details.extras[i] + "<br />";
+          // IGNORE AS ITS MESSAGE SENT WHEN POLICY IS MADE SO DON'T NEED POPUP
       }
-      document.getElementById('trim').innerHTML = this.vehicle_details.trim;
-      document.getElementById("extras").innerHTML = extras;
-      (<HTMLImageElement>document.getElementById("car-pic")).src = "assets/images/"+this.vehicle_details.image;
-      document.getElementById("notification-window").classList.remove('hidden');
+      else
+      {
+        this.vehicle_details = JSON.parse(event.data).vehicleDetails;
+        var location_data = JSON.parse(event.data).location;
+        var vehicle_date = JSON.parse(event.data).manufacturing_date;
+  
+        (<HTMLInputElement>document.getElementById("vin")).value = this.vehicle_details.vin;
+  
+        localStorage.setItem("lat", location_data.latitude);
+        localStorage.setItem("long", location_data.longitude); 
+  
+        var date = new Date(vehicle_date);
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  
+        document.getElementById("reg-on").innerHTML = date.getDate()+" "+months[date.getMonth()]+" "+date.getFullYear();
+        document.getElementById("vehicle-type").innerHTML = this.vehicle_details.name;
+        document.getElementById("colour").innerHTML = this.vehicle_details.colour;
+        var extras = "";
+        for(var i = 0; i < this.vehicle_details.extras.length; i++)
+        {
+          extras += this.vehicle_details.extras[i] + "<br />";
+        }
+        document.getElementById('trim').innerHTML = this.vehicle_details.trim;
+        document.getElementById("extras").innerHTML = extras;
+        (<HTMLImageElement>document.getElementById("car-pic")).src = "assets/images/"+this.vehicle_details.image;
+        document.getElementById("notification-window").classList.remove('hidden');
+      }
     }
 
   }

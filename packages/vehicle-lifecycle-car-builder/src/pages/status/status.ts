@@ -88,7 +88,7 @@ export class StatusPage {
       };
     }
     
-    var openInsuranceWebSocket = () => {
+    var openInsuranceRequestWebSocket = () => {
       var webSocketInsuranceURL;
       if (this.config.useLocalWS){
         webSocketInsuranceURL = 'ws://' + location.host + '/ws/requestpolicy';
@@ -104,11 +104,20 @@ export class StatusPage {
 
       this.websocketInsurance.onclose = function() {
         console.log('closed');
-        openInsuranceWebSocket();
+        openInsuranceRequestWebSocket();
       }
 
       this.websocketInsurance.onmessage = (event) => {
-        console.log("MESSAGE RECIEVED")
+        var event_data = JSON.parse(event.data);
+        if(event_data.request_granted)
+        {
+          var policy_vin = event_data.vin;
+  
+          if(this.vin == policy_vin)
+          {
+            document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Policy Created &#10004;"
+          }
+        }
       };
     }
 
@@ -116,7 +125,7 @@ export class StatusPage {
       .then((config) => {
         this.config = config;
         openWebSocket();
-        openInsuranceWebSocket();
+        openInsuranceRequestWebSocket();
       });
   }
 

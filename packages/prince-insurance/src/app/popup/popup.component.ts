@@ -8,6 +8,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class PopupComponent implements OnInit {
 
   websocket: WebSocket;
+  websocket_request_policy: WebSocket;
   policy_create_attempt_counter = 0;
 
   constructor() {
@@ -23,6 +24,19 @@ export class PopupComponent implements OnInit {
 
     this.websocket.onmessage = event => {
       
+    }
+
+    let websocketRequestInsuranceURL = 'ws://localhost:1880/ws/requestpolicy';
+    
+    console.log('connecting websocket', websocketRequestInsuranceURL);
+    this.websocket_request_policy = new WebSocket(websocketRequestInsuranceURL);
+
+    this.websocket_request_policy.onopen = function () {
+      console.log('request policy websocket open!');
+    };
+
+    this.websocket_request_policy.onmessage = event => {
+
     }
 
   }
@@ -80,6 +94,13 @@ export class PopupComponent implements OnInit {
       }
       else if(XMLReq.status == 200 && XMLReq.readyState == XMLHttpRequest.DONE)
       {
+        var data = {
+          request_granted: true,
+          vin: (<HTMLInputElement>document.getElementById("vin")).value
+        };
+        
+        parent.websocket_request_policy.send(JSON.stringify(data));
+        console.log("HELLO WORLD")
         window.location.href = "/policy/"+policy_id;
       }
     };
