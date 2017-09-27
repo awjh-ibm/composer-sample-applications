@@ -22,6 +22,12 @@ angular.module('bc-vda')
 
         var extraText = "";
 
+        if(type == "UpdateOrderStatus")
+        {
+          type += "_"+transaction.eventsEmitted[0].order.orderStatus;
+          // MAKE IT USE THIS NEW TYPE WHEN GETTING ACTIVITY TO DIFFERENTIATE ON MANUFACTURE SECTION FOR VALIDATORS
+        }
+
         var details = get_activity_from_type(type);
 
         if(details.activity == "Alert")
@@ -224,7 +230,12 @@ angular.module('bc-vda')
     {
       case "CreatePolicy": activity = "New Insurance Issued"; validator_1 = "Insurer"; validator_2 = "Vehicle Owner"; break;
       case "PlaceOrder": activity = "New Vehicle Request"; validator_1="Vehicle Owner"; validator_2 = "Manufacturer"; break;
-      case "UpdateOrderStatus": activity = "Vehicle Manufacture"; validator_1="Manufacturer"; validator_2 = "Vehicle"; break;
+      case "UpdateOrderStatus_PLACED": activity = "Vehicle Manufacture (Order Placed)"; validator_1="Manufacturer"; validator_2 = ""; sign=""; break;
+      case "UpdateOrderStatus_SCHEDULED_FOR_MANUFACTURE": activity = "Vehicle Manufacture (Manufacture Scheduled)"; validator_1="Manufacturer"; validator_2 = ""; sign=""; break;
+      case "UpdateOrderStatus_VIN_ASSIGNED": activity = "Vehicle Manufacture (Vin Assigned)"; validator_1="Manufacturer"; validator_2 = "Regulator"; break;
+      case "CreateUsageRecord": activity = "New Usage Record"; validator_1="Manufacturer"; validator_2 = ""; sign=""; break;
+      case "UpdateOrderStatus_OWNER_ASSIGNED": activity = "Vehicle Manufacture (Owner Assigned)"; validator_1="Manufacturer"; validator_2 = ""; sign=""; break;
+      case "UpdateOrderStatus_DELIVERED": activity = "Vehicle Manufacture (Delivered)"; validator_1="Vehicle Owner"; validator_2 = "Vehicle"; break;
       case "PrivateVehicleTransfer": activity = "Vehicle Transfer"; validator_1="Vehicle Owner"; validator_2 = "Vehicle Owner"; break;
       case "AddUsageEvent": activity="Alert"; validator_1="Vehicle"; validator_2=""; sign=""; break;
     }
