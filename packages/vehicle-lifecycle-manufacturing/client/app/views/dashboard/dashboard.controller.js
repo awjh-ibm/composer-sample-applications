@@ -77,7 +77,7 @@ angular.module('bc-manufacturer')
       console.log('closed');
       // Notification('PlaceOrder WebSocket disconnected');
       if (!destroyed) {
-        openPlaceOrderWebSocket();
+        openUsageRecordWebSocket();
       }
     }
 
@@ -243,6 +243,9 @@ angular.module('bc-manufacturer')
     }
     if (updateOrder) {
       updateOrder.close();
+    }
+    if(createUsage) {
+      createUsage.close();
     }
   });
 }])

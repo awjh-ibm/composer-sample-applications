@@ -20,7 +20,12 @@ angular.module('bc-manufacturer', [
       url: '/dashboard',
       templateUrl: 'app/views/dashboard/dashboard.html',
       controller: 'DashboardCtrl'
-    });
+    })
+    .state('reports', {
+      url: '/reports',
+      templateUrl: 'app/views/reports/reports.html',
+      controller: 'ReportsCtrl'
+    });;
 
   NotificationProvider.setOptions({
     delay: 5000,
