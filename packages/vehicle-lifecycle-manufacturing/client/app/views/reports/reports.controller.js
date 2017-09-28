@@ -38,7 +38,7 @@ angular.module('bc-manufacturer')
                         })
                 }
             }              
-            
+            $scope.$applyAsync()
             updateReport();
         })
     })
@@ -76,9 +76,9 @@ angular.module('bc-manufacturer')
         $scope.event.light_level = usage_event.usageEvent.light_level.toFixed(2)
 
         var counter = 1;
-        for(var i = 0; i < $scope.usageEvents["OVERHEATED"].length; i++)
+        for(var i = 1; i < $scope.usageEvents["OVERHEATED"].length; i++)
         {
-            var usage_event = $scope.usageEvents["OVERHEATED"][0];
+            var usage_event = $scope.usageEvents["OVERHEATED"][i];
             var vin = usage_event.vin;
             var vehicleDetails = $scope.vehicles[vin].vehicleDetails;
 
