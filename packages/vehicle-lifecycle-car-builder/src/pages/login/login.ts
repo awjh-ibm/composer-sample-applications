@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Http, Response } from '@angular/http';
 import { DesignerPage } from '../designer/designer';
 
 /**
@@ -15,12 +16,50 @@ import { DesignerPage } from '../designer/designer';
 })
 export class LoginPage {
   designerPage: DesignerPage;
+  config: any;
+  ready: Promise<any>;
+  addr: string;
 
-  constructor(public navController: NavController, public navParams: NavParams) {
+  constructor(public navController: NavController, public navParams: NavParams, private http: Http) {
+    
+    if(!localStorage.getItem('addr')){
+
+      this.ready = this.loadConfig()
+      .then((config) => {
+        this.config = config;
+        var addr;
+        if (this.config.useLocalWS){
+          addr = location.host;
+        } else {
+          addr = this.config.nodeRedBaseURL;
+        }
+        localStorage.setItem('addr', addr);
+        this.addr = addr;
+      })
+    }
+  }
+
+  loadConfig(): Promise<any> {
+    // Load the config data.
+    return this.http.get('/assets/config.json')
+    .map((res: Response) => res.json())
+    .toPromise();
   }
 
   login() {
-    this.navController.push(DesignerPage);
+    this.navController.push(DesignerPage, {addr: this.addr});
+  }
+
+  settings() {
+    (<HTMLInputElement>document.getElementById('ip-addr')).value = localStorage.getItem('addr');
+    document.getElementById("login").style.display = "none";
+    document.getElementById("settings").style.display = "block";
+  }
+
+  update_settings() {
+    localStorage.setItem('addr', (<HTMLInputElement>document.getElementById('ip-addr')).value);
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("settings").style.display = "none";
   }
 
 }

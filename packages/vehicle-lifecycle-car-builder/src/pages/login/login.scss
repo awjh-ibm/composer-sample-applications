@@ -29,6 +29,15 @@ page-login {
       align-items: center;
       justify-content: center;
 
+      .cog {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        height: 30px;
+        width: 30px;
+        cursor: pointer;
+      }
+
       .logo {
         height: 65px;
         margin-top: 151px;
@@ -72,6 +81,23 @@ page-login {
         }
       }
     }
-
+    .settings-content
+    {
+      position: relative;
+      z-index: 10;
+      display: none;
+      #settings-title {
+        color: white;
+        font-size: 18px;
+        margin-bottom: 15px;
+        font-family: OpenSans;
+      }
+      #ip-addr {
+        margin: 0.4rem 0.2rem;
+        height: 3.6rem;
+        font-size: 1.4rem;
+        font-family: OpenSans;
+      }
+    }
   }
 }

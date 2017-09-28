@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
+import { NavController, NavParams } from 'ionic-angular';
 
 @Component({
   selector: 'page-designer',
@@ -8,7 +8,7 @@ import { NavController } from 'ionic-angular';
 export class DesignerPage {
   cars: Object[];
 
-  constructor(public navController: NavController) {
+  constructor(public navController: NavController, public navParams: NavParams) {
     this.cars = [{
       name: 'Nebula',
       image: 'bmw_2.png',

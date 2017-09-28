@@ -26,24 +26,22 @@ export class BuilderPage {
     this.car = navParams.get('car');
     this.states = {};
 
+    var node_addr = localStorage.getItem('addr');
+
     this.ready = this.loadConfig()
-      .then((config) => {
-        this.config = config;
-        console.log('Config loaded:',this.config)
-        var webSocketURL;
-        if (this.config.useLocalWS){
-          webSocketURL = 'ws://' + location.host + '/ws/placeorder';
-        } else {
-          webSocketURL = this.config.nodeRedBaseURL+'/ws/placeorder';
-        }
-        console.log('connecting websocket', webSocketURL);
-        this.websocket = new WebSocket(webSocketURL);
+    .then((config) => {
+      this.config = config;
+      console.log('Config loaded:',this.config)
+      var webSocketURL;
+      webSocketURL = 'ws://' + node_addr + '/ws/placeorder';
+      console.log('connecting websocket', webSocketURL);
+      this.websocket = new WebSocket(webSocketURL);
 
-        this.websocket.onopen = function () {
-          console.log('websocket open!');
-        };
+      this.websocket.onopen = function () {
+        console.log('websocket open!');
+      };
 
-      });
+    });
   }
 
   loadConfig(): Promise<any> {

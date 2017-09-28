@@ -14,6 +14,7 @@ import { BuilderPage } from '../../pages/builder/builder';
 })
 export class CarSlideComponent {
   @Input() car: Object;
+  @Input() addr: Object;
 
   constructor(private navController: NavController) {
   }
