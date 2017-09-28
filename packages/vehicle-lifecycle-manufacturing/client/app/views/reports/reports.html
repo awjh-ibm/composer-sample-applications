@@ -75,6 +75,7 @@
               <div class="card-header">
                   <h5>SIMILAR FAILURE</h5>
                   <h3><strong>Arium </strong>{{similar_failure.car_model}}</h3>
+                  <p style="margin: 10px 0 5px;">Occurred {{similar_failure.time}}</p>
                   <p style="margin: 10px 0 5px;">S/N {{similar_failure.serial_number}}</p>
               </div>
               <p class="alert-data alert-data-red" >
@@ -82,7 +83,7 @@
               </p>
           </div>
       </div>
-      <div class="card" ng-show="event.not_shown > 0" >
+      <div class="card not-shown" ng-show="event.not_shown > 0" >
           <div class="card-block">
               <div class="card-header">
                 <h5>+ {{event.not_shown}} MORE</h5>

@@ -90,6 +90,7 @@ angular.module('bc-manufacturer')
                     $scope.event.similar_failures.push({
                         car_model: vehicleDetails.modelType,
                         serial_number: generateSN(),
+                        time: new Date(usage_event.usageEvent.timestamp).toLocaleString(),
                         engine_temperature: usage_event.usageEvent.engine_temperature
                     })
                 }

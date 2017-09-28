@@ -6,12 +6,11 @@
 
   <h4>Main</h4>
   <ul>
-    <li class="selected">
-      <span>Dashboard</span>
+    <li ng-class="{selected: selected === 'dashboard' }">
+      <span><a href="/dashboard" >Dashboard</a></span>
     </li>
-    <li>
-      <span>Reports</span>
-      <span class="badge">5</span>
+    <li ng-class="{selected: selected === 'reports'}">
+      <span><a href="/reports" >Reports</a></span>
     </li>
     <li>
       <span>Goals</span>
