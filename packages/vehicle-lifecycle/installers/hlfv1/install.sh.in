@@ -53,10 +53,10 @@ tail -n +${PAYLOAD_START} "${SOURCE}" | tar -xzf -
 find . -type d | xargs chmod a+rx
 find . -type f | xargs chmod a+r
 
-# Pull the latest versions of all the Docker images.
-docker pull hyperledger/composer-playground:{{ENV}}
-docker pull hyperledger/composer-cli:{{ENV}}
-docker pull hyperledger/composer-rest-server:{{ENV}}
+# Pull the fixed versions of all the Docker images.
+docker pull hyperledger/composer-playground@sha256:5f8266f3d9302a97d63d5e798d251c7d868bd5886d9505d2f305f7a72bcbb6b0
+docker pull hyperledger/composer-cli@sha256:ce81513d34c3ca3b5586723b92fc6cc6c010bfc46c65598019a01470e84710df
+docker pull hyperledger/composer-rest-server@sha256:af2635a3857fd58591bdf83dfd4a4548fcf88c3d9a3034e887175f892df04962
 #docker pull hyperledger/vehicle-lifecycle-vda:{{ENV}}
 #docker pull hyperledger/vehicle-lifecycle-manufacturing:{{ENV}}
 #docker pull hyperledger/vehicle-lifecycle-car-builder:{{ENV}}
