@@ -119,9 +119,9 @@ export class PolicyComponent {
       vin: "UNKNOWN",
       vehicleDetails: {
         $class: "org.vda.VehicleDetails",
-        make: "UNKNOWN",
-        modelType: "UNKNOWN",
-        colour: "UNKNOWN",
+        make: "",
+        modelType: "",
+        colour: "",
         vin: "UNKNOWN"
       },
       vehicleStatus: "UNKNOWN",
