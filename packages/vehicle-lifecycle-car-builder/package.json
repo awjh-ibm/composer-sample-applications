@@ -11,8 +11,8 @@
         "start": "node app.js"
     },
     "dependencies": {
-        "@ionic-native/geolocation": "^3.4.2",
-        "@ionic-native/keyboard": "^3.4.2",
+        "@ionic-native/geolocation": "3.4.2",
+        "@ionic-native/keyboard": "3.4.2",
         "config": "^1.26.1",
         "cordova-ios": "^4.4.0",
         "cordova-plugin-compat": "^1.2.0",
