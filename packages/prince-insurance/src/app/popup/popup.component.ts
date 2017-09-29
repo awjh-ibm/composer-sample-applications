@@ -100,7 +100,11 @@ export class PopupComponent implements OnInit {
         };
         
         parent.websocket_request_policy.send(JSON.stringify(data));
-        window.location.href = "/policy/"+policy_id;
+        setTimeout(function() {
+          window.location.href = "/policy/"+policy_id;
+          // DELAY REDIRECT JUST TO ENSURE IT IS SENT
+        }, 500)
+        
       }
     };
     XMLReq.send(null);
