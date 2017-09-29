@@ -121,7 +121,7 @@ export class StatusPage implements OnInit{
 
         if(this.vin == policy_vin)
         {
-          document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Policy Created &#10004;"
+          document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Policy Created &#10004; <br /> ("+event_data.policy_id.split('-')[0]+")";
         }
       }
     };

@@ -96,7 +96,8 @@ export class PopupComponent implements OnInit {
       {
         var data = {
           request_granted: true,
-          vin: (<HTMLInputElement>document.getElementById("vin")).value
+          vin: (<HTMLInputElement>document.getElementById("vin")).value,
+          policy_id: policy_id
         };
         
         parent.websocket_request_policy.send(JSON.stringify(data));

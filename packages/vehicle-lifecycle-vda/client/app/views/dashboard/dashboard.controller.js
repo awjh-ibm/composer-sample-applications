@@ -37,7 +37,7 @@ angular.module('bc-vda')
         
         console.log(transaction)
 
-        var status = "UNKNOWN"
+        var status = ""
         try{
           var status = (type == 'AddUsageEvent') ? transaction.eventsEmitted[0].usageEvent.eventType : transaction.eventsEmitted[0].order.orderStatus
         }
@@ -218,7 +218,8 @@ angular.module('bc-vda')
       transaction_id: tranactionId,
       transaction_type: type,
       transaction_submitter: submitter,
-      transaction_class: "new-row"
+      transaction_class: "new-row",
+      status: status
     });
   };
 

@@ -21,10 +21,12 @@ angular.module('bc-vda')
         var time = Date.parse(transaction.transactionTimestamp);
 
         var extraText = "";
+        var status = "";
 
         if(type == "UpdateOrderStatus")
         {
           type += "_"+transaction.eventsEmitted[0].order.orderStatus;
+          status = transaction.eventsEmitted[0].order.orderStatus;
           // MAKE IT USE THIS NEW TYPE WHEN GETTING ACTIVITY TO DIFFERENTIATE ON MANUFACTURE SECTION FOR VALIDATORS
         }
 
@@ -44,7 +46,8 @@ angular.module('bc-vda')
             transaction_validator_1: details.validator_1,
             transaction_validator_2: details.validator_2,
             transaction_sign: details.sign,
-            transaction_class: "existing-row"
+            transaction_class: "existing-row",
+            status: status
           });
   
           return {
@@ -92,7 +95,7 @@ angular.module('bc-vda')
       }
 
       var order = JSON.parse(event.data);
-      $scope.addBlock(order.transactionId, 'PlaceOrder');
+      $scope.addBlock(order.transactionId, 'PlaceOrder', '');
       $scope.$apply();
     }
   }
@@ -118,7 +121,7 @@ angular.module('bc-vda')
         return;
       }
       var status = JSON.parse(event.data);
-      $scope.addBlock(status.transactionId, 'UpdateOrderStatus');
+      $scope.addBlock(status.transactionId, 'UpdateOrderStatus_'+status.orderStatus, status.orderStatus);
       $scope.$apply();
     }
   }
@@ -142,7 +145,7 @@ angular.module('bc-vda')
     createPolicy.onmessage = function(event) {
 
       var order = JSON.parse(event.data);
-      $scope.addBlock(order.eventId.split('#')[0], 'CreatePolicy');
+      $scope.addBlock(order.eventId.split('#')[0], 'CreatePolicy', '');
       $scope.$apply();
     }
   }
@@ -166,7 +169,7 @@ angular.module('bc-vda')
     createUsageRecord.onmessage = function(event) {
 
       var order = JSON.parse(event.data);
-      $scope.addBlock(order.eventId.split('#')[0], 'CreateUsageRecord');
+      $scope.addBlock(order.eventId.split('#')[0], 'CreateUsageRecord', '');
       $scope.$apply();
     }
   }
@@ -210,11 +213,12 @@ angular.module('bc-vda')
       $scope.transactions.push({
         timestamp: new Date(),
         transaction_id: transactionId,
-        transaction_type: usageEvent + "" + details.activity,
+        transaction_type: details.activity,
         transaction_validator_1: details.validator_1,
         transaction_validator_2: details.validator_2,
         transaction_sign: details.sign,
-        transaction_class: "new-row"
+        transaction_class: "new-row",
+        status: usageEvent
       });
     }
   };
