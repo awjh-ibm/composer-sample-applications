@@ -106,33 +106,47 @@
       padding-bottom: 15px;
     }
 
-    .card-secondary
+    .bottom-holder 
     {
-      float: left;
-      width: ~"calc(100% - 290px)";
-      padding-top: 31px;
-      padding-bottom: 31px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .card-yellow {
-      font-family: "OpenSans-Semibold";
-      font-size: 12px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      text-align: center;
-      width: 175px;
-      padding-top: 37.5px; 
-      padding-bottom: 37.5px;
-      float: right;
-      background-color: @yellow;
-      cursor: pointer;
-    }
-
-    .card-yellow:hover {
-        background-color: @mustard;
+      position: relative;
+      .card-secondary
+      {
+        position: relative;
+        left: 0px;
+        top: 0px;
+        width: ~"calc(100% - 290px)";
+        margin-top: 15px;
+        padding-top: 31px;
+        padding-bottom: 31px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+      }
+  
+      .card-yellow {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        margin-left: 15px;
+        font-family: "OpenSans-Semibold";
+        font-size: 12px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        text-align: center;
+        width: 175px;
+        background-color: @yellow;
+        cursor: pointer;
+        height: ~"calc(100% - 22px)";
+        padding-top: 0px;
+        padding-bottom: 0px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+      }
+  
+      .card-yellow:hover {
+          background-color: @mustard;
+      }
     }
     
     .big-card {
