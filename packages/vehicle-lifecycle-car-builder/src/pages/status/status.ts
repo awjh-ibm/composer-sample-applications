@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
-import { Http, Response } from '@angular/http';
+import { Component, OnInit } from '@angular/core';
+import { NavController, NavParams } from 'ionic-angular';
+import { Geolocation } from '@ionic-native/geolocation';
 
 /**
  * Generated class for the StatusPage page.
@@ -8,128 +8,134 @@ import { Http, Response } from '@angular/http';
  * See http://ionicframework.com/docs/components/#navigation for more info
  * on Ionic pages and navigation.
  */
-@IonicPage()
 @Component({
   selector: 'page-status',
   templateUrl: 'status.html',
 })
-export class StatusPage {
+export class StatusPage implements OnInit{
   car: Object;
   stage: Array<String>;
   relativeDate: any;
-  config: any;
-  ready: Promise<any>;
+  ready: Boolean;
   vin: any;
   websocketInsurance: WebSocket;
+  websocket:WebSocket;
+  statuses:Array<String>;
+  node_addr:string
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private http: Http) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, private geolocation: Geolocation) {
+
+    this.ready = false;
     
-    var node_addr = localStorage.getItem('addr');
+    this.node_addr = localStorage.getItem('addr');
 
     this.car = navParams.get('car');
     
-        console.log(this.car)
     
-        this.stage = [Date.now() + ''];
-    
-        this.relativeDate = function(input, start) {
-          if (input) {
-            input = Date.parse(input);
-            start = Date.parse(start);
-            var diff = input - start;
-            diff = diff / 1000
-            diff = Math.round(diff);
-    
-            var result = '+' + diff +  ' secs'
-    
-            return result;
-          }
-        };
-    
-        let statuses = ['PLACED', 'SCHEDULED_FOR_MANUFACTURE', 'VIN_ASSIGNED', 'OWNER_ASSIGNED', 'DELIVERED'];
-    
-        var websocket;
-    
-        var openWebSocket = () => {
-          var webSocketURL;
-          webSocketURL = 'ws://' + node_addr + '/ws/updateorderstatus';
-    
-          console.log('connecting websocket', webSocketURL);
-          websocket = new WebSocket(webSocketURL);
-    
-          websocket.onopen = function () {
-            console.log('updateorderstatus websocket open!');
-          };
-    
-          websocket.onclose = function() {
-            console.log('closed');
-            openWebSocket();
-          }
-    
-          this.vin = 123456127;
-    
-          websocket.onmessage = (event) => {
-            if (event.data === '__pong__') {
-              return;
-            }
-    
-            var status = JSON.parse(event.data);
-            console.log(status);
-            if (status.orderStatus === statuses[0]) {
-              this.stage[0] = status.timestamp;
-            } else {
-              let i = statuses.indexOf(status.orderStatus);
-              if(status.orderStatus === statuses[2])
-              {
-                this.vin = status.order.vehicleDetails.vin;
-              }
-              this.stage[i] = this.relativeDate(status.timestamp, this.stage[0]);
-            }
-          };
-        }
-        
-        var openInsuranceRequestWebSocket = () => {
-          var webSocketInsuranceURL;
-          webSocketInsuranceURL = 'ws://' + node_addr + '/ws/requestpolicy';
-          console.log('connecting websocket', webSocketInsuranceURL);
-          this.websocketInsurance = new WebSocket(webSocketInsuranceURL);
-    
-          this.websocketInsurance.onopen = function () {
-            console.log('insurance websocket open!');
-          };
-    
-          this.websocketInsurance.onclose = function() {
-            console.log('closed');
-            openInsuranceRequestWebSocket();
-          }
-    
-          this.websocketInsurance.onmessage = (event) => {
-            var event_data = JSON.parse(event.data);
-            if(event_data.request_granted)
-            {
-              var policy_vin = event_data.vin;
-      
-              if(this.vin == policy_vin)
-              {
-                document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Policy Created &#10004;"
-              }
-            }
-          };
-        }
-    
-        this.ready = this.loadConfig()
-          .then((config) => {
-            this.config = config;
-            openWebSocket();
-            openInsuranceRequestWebSocket();
-          });
+    this.stage = [Date.now() + ''];
+
+    this.relativeDate = function(input, start) {
+      if (input) {
+        input = Date.parse(input);
+        start = Date.parse(start);
+        var diff = input - start;
+        diff = diff / 1000
+        diff = Math.round(diff);
+
+        var result = '+' + diff +  ' secs'
+
+        return result;
+      }
+    };
+
+    this.statuses = ['PLACED', 'SCHEDULED_FOR_MANUFACTURE', 'VIN_ASSIGNED', 'OWNER_ASSIGNED', 'DELIVERED'];
   };
+
+  ngOnInit() {
+    this.openWebSocket();
+    this.openInsuranceRequestWebSocket();
+    this.ready = true;
+  }
+
+  openWebSocket() {
+    var webSocketURL;
+    webSocketURL = 'ws://' + this.node_addr + '/ws/updateorderstatus';
+
+    console.log('connecting websocket', webSocketURL);
+    this.websocket = new WebSocket(webSocketURL);
+
+    this.websocket.onopen = function () {
+      console.log('updateorderstatus websocket open!');
+    };
+
+    var parent = this;
+    this.websocket.onclose = function() {
+      console.log('closed');
+      parent.openWebSocket();
+    }
+
+    this.vin = 123456127;
+
+    this.websocket.onmessage = (event) => {
+      if (event.data === '__pong__') {
+        return;
+      }
+
+      var status = JSON.parse(event.data);
+      console.log(status);
+      if (status.orderStatus === this.statuses[0]) {
+        this.stage[0] = status.timestamp;
+      } else {
+        let i = this.statuses.indexOf(status.orderStatus);
+        if(status.orderStatus === this.statuses[2])
+        {
+          this.vin = status.order.vehicleDetails.vin;
+        }
+        this.stage[i] = this.relativeDate(status.timestamp, this.stage[0]);
+      }
+    };
+  }
+
+  openInsuranceRequestWebSocket() {
+    var webSocketInsuranceURL;
+    webSocketInsuranceURL = 'ws://' + this.node_addr + '/ws/requestpolicy';
+    console.log('connecting websocket', webSocketInsuranceURL);
+    this.websocketInsurance = new WebSocket(webSocketInsuranceURL);
+
+    this.websocketInsurance.onopen = function () {
+      console.log('insurance websocket open!');
+    };
+
+    var parent = this;
+
+    this.websocketInsurance.onclose = function() {
+      console.log('closed');
+      parent.openInsuranceRequestWebSocket();
+    }
+
+    this.websocketInsurance.onmessage = (event) => {
+      var event_data = JSON.parse(event.data);
+      if(event_data.request_granted)
+      {
+        var policy_vin = event_data.vin;
+
+        if(this.vin == policy_vin)
+        {
+          document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Policy Created &#10004;"
+        }
+      }
+    };
+  }
 
   insure() {
     
     document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Processing ..."
     
-    navigator.geolocation.getCurrentPosition(success, error)
+    this.geolocation.getCurrentPosition().then((location) => {
+      success(location)
+    }).catch((err) => {
+      error(err);
+    })
 
     this.stage[5] = "Insured";
 
@@ -153,12 +159,13 @@ export class StatusPage {
           }
       };
   
-      parent.ready.then(() => {
+      if(parent.ready) {
         parent.websocketInsurance.send(JSON.stringify(order));
-      });
+      };
     }
 
     function error(error) {
+      console.log(error)
       parent.stage.splice(5,1)
       document.getElementById('insureBtn').getElementsByTagName('span')[0].innerHTML = "Insure me <img src='assets/arrow_right.svg' />"
       switch(error.code) {
@@ -178,14 +185,12 @@ export class StatusPage {
         case error.UNKNOWN_ERROR:
           alert("An unknown error occurred.")
           break;
+        default: 
+          console.log("Location information is unknown. Using default")
+          parent.stage[5] = "Insured";
+          success({"coords": {"latitude": null, "longitude": null}})
+          break;
       }
     }
-  }
-
-  loadConfig(): Promise<any> {
-      // Load the config data.
-      return this.http.get('/assets/config.json')
-      .map((res: Response) => res.json())
-      .toPromise();
   }
 }

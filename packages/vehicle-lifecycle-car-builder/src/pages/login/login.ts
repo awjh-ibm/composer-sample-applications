@@ -1,5 +1,6 @@
+import { Keyboard } from '@ionic-native/keyboard';
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams } from 'ionic-angular';
 import { Http, Response } from '@angular/http';
 import { DesignerPage } from '../designer/designer';
 
@@ -9,7 +10,6 @@ import { DesignerPage } from '../designer/designer';
  * See http://ionicframework.com/docs/components/#navigation for more info
  * on Ionic pages and navigation.
  */
-@IonicPage()
 @Component({
   selector: 'page-login',
   templateUrl: 'login.html',
@@ -20,7 +20,7 @@ export class LoginPage {
   ready: Promise<any>;
   addr: string;
 
-  constructor(public navController: NavController, public navParams: NavParams, private http: Http) {
+  constructor(public navController: NavController, public navParams: NavParams, private http: Http, private keyboard: Keyboard) {
     
     if(!localStorage.getItem('addr')){
 
@@ -52,6 +52,7 @@ export class LoginPage {
 
   settings() {
     (<HTMLInputElement>document.getElementById('ip-addr')).value = localStorage.getItem('addr');
+    document.getElementById("ip-addr").blur();
     document.getElementById("login").style.display = "none";
     document.getElementById("settings").style.display = "block";
   }
@@ -60,6 +61,7 @@ export class LoginPage {
     localStorage.setItem('addr', (<HTMLInputElement>document.getElementById('ip-addr')).value);
     document.getElementById("login").style.display = "flex";
     document.getElementById("settings").style.display = "none";
+    this.keyboard.close();
   }
 
 }

@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component, OnInit } from '@angular/core';
+import { NavController, NavParams } from 'ionic-angular';
 import { StatusPage } from '../status/status';
-import { Http, Response } from '@angular/http';
 
 /**
  * Generated class for the BuilderPage page.
@@ -9,46 +8,37 @@ import { Http, Response } from '@angular/http';
  * See http://ionicframework.com/docs/components/#navigation for more info
  * on Ionic pages and navigation.
  */
-@IonicPage()
 @Component({
   selector: 'page-builder',
   templateUrl: 'builder.html'
 })
-export class BuilderPage {
+export class BuilderPage implements OnInit {
   car: any;
   states: any;
   selected: string;
-  ready: Promise<any>;
+  ready: boolean;
   websocket: WebSocket;
-  config: any;
 
-  constructor(private navController: NavController, private navParams: NavParams, private http: Http) {
+  constructor(private navController: NavController, private navParams: NavParams) {
     this.car = navParams.get('car');
     this.states = {};
-
-    var node_addr = localStorage.getItem('addr');
-
-    this.ready = this.loadConfig()
-    .then((config) => {
-      this.config = config;
-      console.log('Config loaded:',this.config)
-      var webSocketURL;
-      webSocketURL = 'ws://' + node_addr + '/ws/placeorder';
-      console.log('connecting websocket', webSocketURL);
-      this.websocket = new WebSocket(webSocketURL);
-
-      this.websocket.onopen = function () {
-        console.log('websocket open!');
-      };
-
-    });
+    this.ready = false;
   }
 
-  loadConfig(): Promise<any> {
-      // Load the config data.
-      return this.http.get('/assets/config.json')
-      .map((res: Response) => res.json())
-      .toPromise();
+  ngOnInit()
+  {
+    var webSocketURL;
+    var node_addr = localStorage.getItem('addr');  
+    webSocketURL = 'ws://' + node_addr + '/ws/placeorder';
+    console.log('connecting websocket', webSocketURL);
+    this.websocket = new WebSocket(webSocketURL);
+
+    var parent = this;
+
+    this.websocket.onopen = function () {
+      console.log('websocket open!');
+      parent.ready = true;
+    };
   }
 
   open(option) {
@@ -89,6 +79,7 @@ export class BuilderPage {
   }
 
   purchase() {
+    
     var vehicleDetails = {
       make: 'Arium',
       modelType: this.car.name,
@@ -108,13 +99,14 @@ export class BuilderPage {
       orderId: this.generateID()
     };
 
-    this.ready.then(() => {
+    if(this.ready) {
+
       this.websocket.send(JSON.stringify(order));
 
       this.navController.push(StatusPage, {
         car: full_car
       });
-    });
+    }
   }
 
   containsExtra(state) {
