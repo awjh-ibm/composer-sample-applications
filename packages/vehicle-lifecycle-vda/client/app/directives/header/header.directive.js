@@ -55,14 +55,14 @@ angular.module('bc-vda')
               scope.vin_assigned++;
               scope.stored_trans_ids.push(scope.transactions[i].transaction_id)
             }
-          }
-          if(scope.transactions[i].transaction_validator_1)
-          {
-            scope.total_events = scope.transactions.length;
-          }
-          else
-          {
-            scope.total_events = scope.transactions.length-1;
+            if(scope.transactions[i].transaction_validator_1)
+            {
+              scope.total_events = scope.transactions.length; // ASSET ACTIVITY PAGE
+            }
+            else
+            {
+              scope.total_events = scope.transactions.length-1; // DASHBOARD PAGE
+            }
           }
         }
       }, true);
