@@ -125,7 +125,7 @@ docker run \
   -v $(pwd)/.composer-credentials:/home/composer/.composer-credentials \
   -e COMPOSER_CONFIG="${COMPOSER_CONFIG}" \
   -p 8080:8080 \
-  hyperledger/composer-playground:{{ENV}}
+  hyperledger/composer-playground@sha256:5f8266f3d9302a97d63d5e798d251c7d868bd5886d9505d2f305f7a72bcbb6b0
 
 # Doctor the permissions on the files so Docker can pointlessly overwrite them.
 chmod a+rwx .composer-connection-profiles .composer-connection-profiles/hlfv1 .composer-credentials
@@ -139,7 +139,7 @@ docker run \
   -v $(pwd)/vehicle-lifecycle-network.bna:/home/composer/vehicle-lifecycle-network.bna \
   -v $(pwd)/.composer-connection-profiles:/home/composer/.composer-connection-profiles \
   -v $(pwd)/.composer-credentials:/home/composer/.composer-credentials \
-  hyperledger/composer-cli:{{ENV}} \
+  hyperledger/composer-cli@sha256:ce81513d34c3ca3b5586723b92fc6cc6c010bfc46c65598019a01470e84710df \
   composer network deploy -p hlfv1 -a vehicle-lifecycle-network.bna -i PeerAdmin -s whatever
 
 # Submit the setup transaction.
@@ -148,7 +148,7 @@ docker run \
   --network composer_default \
   -v $(pwd)/.composer-connection-profiles:/home/composer/.composer-connection-profiles \
   -v $(pwd)/.composer-credentials:/home/composer/.composer-credentials \
-  hyperledger/composer-cli:{{ENV}} \
+  hyperledger/composer-cli@sha256:ce81513d34c3ca3b5586723b92fc6cc6c010bfc46c65598019a01470e84710df \
   composer transaction submit -p hlfv1 -n vehicle-lifecycle-network -i admin -s adminpw -d '{"$class": "org.acme.vehicle.lifecycle.SetupDemo"}'
 
 # Start the REST server.
@@ -164,7 +164,7 @@ docker run \
   -e COMPOSER_ENROLLMENT_SECRET=adminpw \
   -e COMPOSER_NAMESPACES=required \
   -p 3000:3000 \
-  hyperledger/composer-rest-server:{{ENV}}
+  hyperledger/composer-rest-server@sha256:af2635a3857fd58591bdf83dfd4a4548fcf88c3d9a3034e887175f892df04962
 
 # Wait for the REST server to start and initialize.
 sleep 10
@@ -186,7 +186,7 @@ docker run \
 docker exec \
   -e NPM_CONFIG_LOGLEVEL=warn \
   node-red \
-  bash -c "cd /data && npm install node-red-contrib-composer@{{ENV}} && npm install node-red-contrib-scx-ibmiotapp"
+  bash -c "cd /data && npm install node-red-contrib-composer@0.0.6 && npm install node-red-contrib-scx-ibmiotapp@0.0.47"
 docker restart node-red
 
 # Wait for Node-RED to start and initialize.
