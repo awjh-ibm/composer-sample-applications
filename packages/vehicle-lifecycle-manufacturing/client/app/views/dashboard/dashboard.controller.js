@@ -205,20 +205,13 @@ angular.module('bc-manufacturer')
     status.orderStatus = $scope.statuses[count];
     status.timestamp =  Date.now();
     updateOrder.send(JSON.stringify(status));
-    if(status.orderStatus == $scope.statuses[2])
-    {
-      var usageRecord = {
-        "$class": "org.vda.CreateUsageRecord",
-        "usageID": "USAGE"+status.vin,
-        "vin": status.vin,
-      }
-      createUsage.send(JSON.stringify(usageRecord))
-    }
   }
 
   $scope.start = function(order) {
     var delay = 5000;
     var count = 1;
+
+    var done_create_usage_record = false;
 
     var status = {
       vin: '',
@@ -230,7 +223,17 @@ angular.module('bc-manufacturer')
     order.manufacture = {};
 
     $interval(function() {
-      updateOrderStatus(status, count)
+      if(status.orderStatus == $scope.statuses[2] && !done_create_usage_record) {
+        var usageRecord = {
+          "$class": "org.vda.CreateUsageRecord",
+          "usageID": "USAGE"+status.vin,
+          "vin": status.vin,
+        }
+        createUsage.send(JSON.stringify(usageRecord))
+        done_create_usage_record = true;
+      } else {
+        updateOrderStatus(status, count)
+      }
       count++;
     }, delay, $scope.statuses.length - 1);
 
