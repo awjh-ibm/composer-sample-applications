@@ -232,9 +232,9 @@ angular.module('bc-manufacturer')
         createUsage.send(JSON.stringify(usageRecord))
         done_create_usage_record = true;
       } else {
-        updateOrderStatus(status, count)
+        updateOrderStatus(status, count);
+        count++;
       }
-      count++;
     }, delay, $scope.statuses.length - 1);
 
   }
