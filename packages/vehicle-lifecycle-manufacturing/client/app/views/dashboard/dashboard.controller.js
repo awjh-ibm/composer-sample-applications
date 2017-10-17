@@ -235,7 +235,7 @@ angular.module('bc-manufacturer')
         updateOrderStatus(status, count);
         count++;
       }
-    }, delay, $scope.statuses.length - 1);
+    }, delay, $scope.statuses.length);
 
   }
 
