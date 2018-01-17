@@ -12,44 +12,12 @@ var server = http.createServer(app);
 
 app.get('/assets/config.json', (req, res, next) => {
   res.json({
-    useLocalWS: true,
-    nodeRedBaseURL: process.env.NODE_RED_BASE_URL || config.get("nodeRedBaseURL")
+    restServer: process.env.REST_SERVER_CONFIG || config.get("restServer")
   });
 });
-
-var nodeRedBaseURL = process.env.NODE_RED_BASE_URL || config.get("nodeRedBaseURL");
-
 
 // static - all our js, css, images, etc go into the assets path
 app.use(express.static(path.join(__dirname, 'www')));
-
-var wss = new WebSocket.Server({ server: server });
-wss.on('connection', function (ws) {
-  var location = url.parse(ws.upgradeReq.url, true);
-  console.log('client connected', location.pathname);
-  var remoteURL = nodeRedBaseURL + location.pathname;
-  console.log('creating remote connection', remoteURL);
-  var remote = new WebSocket(remoteURL);
-  ws.on('close', function () {
-    console.log('client closed', location.pathname);
-    remote.close();
-  });
-  ws.on('message', function (data) {
-    console.log('Received message from ws. Sending to nodered.',data);
-    remote.send(data);
-  });
-  remote.on('open', function () {
-    console.log('remote open', location.pathname);
-  })
-  remote.on('close', function () {
-    console.log('remote closed', location.pathname);
-    ws.close();
-  });
-  remote.on('message', function (data) {
-    console.log('Received message from nodered. Sending to ws.',data);
-    ws.send(data);
-  });
-});
 
 // start server on the specified port
 server.listen(8100, function () {

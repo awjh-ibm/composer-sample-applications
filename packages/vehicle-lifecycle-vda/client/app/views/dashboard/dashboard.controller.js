@@ -17,20 +17,43 @@ angular.module('bc-vda')
         var type = split[split.length - 1];
         var time = Date.parse(transaction.transactionTimestamp);
 
-        $scope.transactions.push({
-          timestamp: time,
-          transaction_id: transaction.transactionId,
-          transaction_type: type,
-          transaction_submitter: type === 'SetupDemo' ? 'Liam Grace' : 'Arium Vehicles'
-        });
+        let transactionSubmitter;
+        let displayTransaction = false;
+        let orderStatus = '';
+        switch(type) {
+          case 'SetupDemo':         transactionSubmitter = 'Admin';
+                                    displayTransaction = true;
+                                    break;
+
+          case 'PlaceOrder':        transactionSubmitter = transaction.eventsEmitted[0].orderer.replace('resource:org.base.PrivateOwner#', '');
+                                    displayTransaction = true;
+                                    break;
+
+          case 'UpdateOrderStatus': transactionSubmitter = transaction.eventsEmitted[0].order.manufacturer.replace('resource:org.base.Manufacturer#', '');
+                                    displayTransaction = true;
+                                    orderStatus = transaction.eventsEmitted[0].orderStatus;
+                                    break;
+        }
+
+        if (displayTransaction) {
+          $scope.transactions.push({
+            timestamp: time,
+            transaction_id: transaction.transactionId,
+            transaction_type: type,
+            transaction_submitter: transactionSubmitter
+          });
+        }
 
         return {
           transID: transaction.transactionId,
           type: type,
-          status: transaction.orderStatus,
-          time: time
+          status: orderStatus,
+          time: time,
+          display_transaction: displayTransaction
         };
       });
+
+      $scope.chain = $scope.chain.filter(el => el.display_transaction);
 
       $scope.chain.sort(function(t1, t2) {
         return t1.time - t2.time;
@@ -44,66 +67,33 @@ angular.module('bc-vda')
   });
 
   // Websockets
-
-  var placeOrder;
-  var updateOrder;
   var destroyed = false;
+  let websocket;
+  function openWebSocket() {
+    var webSocketURL = 'ws://' + location.host;
+    websocket = new WebSocket(webSocketURL);
 
-  function openPlaceOrderWebSocket() {
-    placeOrder = new WebSocket('ws://' + location.host + '/ws/placeorder');
+    websocket.onopen = function () {
+      console.log('Websocket is open');
+    }
 
-    placeOrder.onopen = function() {
-      console.log('placeOrder websocket open!');
-      // Notification('PlaceOrder WebSocket connected');
-    };
-
-    placeOrder.onclose = function() {
-      console.log('closed');
-      // Notification('PlaceOrder WebSocket disconnected');
+    websocket.onclose = function () {
+      console.log('Websocket closed');
       if (!destroyed) {
-        openPlaceOrderWebSocket();
+        openWebSocket();
       }
     }
 
-    placeOrder.onmessage = function(event) {
-      if (event.data === '__pong__') {
-        return;
-      }
-
-      var order = JSON.parse(event.data);
-      $scope.addBlock(order.transactionId, 'PlaceOrder', 'Arium Vehicles');
+    websocket.onmessage = function (event) {
+      var message = JSON.parse(event.data);
+      var caller = message.orderer ? message.orderer.replace('resource:org.base.PrivateOwner#', '') : message.order.manufacturer.replace('resource:org.base.Manufacturer#', '');
+      var status = message.order ? message.orderStatus : null;
+      $scope.addBlock(message.eventId.split('#')[0], message.$class.replace('org.base.', '').replace('Event', ''), caller, status);
       $scope.$apply();
     }
   }
 
-  function openUpdateOrderWebSocket() {
-    updateOrder = new WebSocket('ws://' + location.host + '/ws/updateorderstatus');
-
-    updateOrder.onopen = function() {
-      console.log('updateOrder websocket open!');
-      // Notification('UpdateOrderStatus WebSocket connected');
-    };
-
-    updateOrder.onclose = function() {
-      console.log('closed');
-      // Notification('UpdateOrderStatus WebSocket disconnected');
-      if (!destroyed) {
-        openUpdateOrderWebSocket();
-      }
-    }
-
-    updateOrder.onmessage = function(event) {
-      if (event.data === '__pong__') {
-        return;
-      }
-      var status = JSON.parse(event.data);
-      $scope.addBlock(status.transactionId, 'UpdateOrderStatus', 'Arium Vehicles', status.orderStatus);
-      $scope.$apply();
-    }
-  }
-
-  openPlaceOrderWebSocket();
-  openUpdateOrderWebSocket();
+  openWebSocket();
 
   $scope.addBlock = function (tranactionId, type, submitter, status) {
     var id = $scope.chain[$scope.chain.length - 1].id + 1;
@@ -123,11 +113,8 @@ angular.module('bc-vda')
 
   $scope.$on('$destroy', function () {
     destroyed = true;
-    if (placeOrder) {
-      placeOrder.close();
-    }
-    if (updateOrder) {
-      updateOrder.close();
+    if (websocket) {
+      websocket.close();
     }
   });
 }]);

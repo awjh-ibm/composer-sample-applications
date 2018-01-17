@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vehicle-lifecycle-network": "^0.1.1"
+    "vehicle-lifecycle-network": "^0.2.1-20180108124335"
   }
 }

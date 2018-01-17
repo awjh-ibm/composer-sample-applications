@@ -19,7 +19,6 @@ export class BuilderPage {
   states: any;
   selected: string;
   ready: Promise<any>;
-  websocket: WebSocket;
   config: any;
 
   constructor(private navController: NavController, private navParams: NavParams, private http: Http) {
@@ -30,19 +29,6 @@ export class BuilderPage {
       .then((config) => {
         this.config = config;
         console.log('Config loaded:',this.config)
-        var webSocketURL;
-        if (this.config.useLocalWS){
-          webSocketURL = 'ws://' + location.host + '/ws/placeorder';
-        } else {
-          webSocketURL = this.config.nodeRedBaseURL+'/ws/placeorder';
-        }
-        console.log('connecting websocket', webSocketURL);
-        this.websocket = new WebSocket(webSocketURL);
-
-        this.websocket.onopen = function () {
-          console.log('websocket open!');
-        };
-
       });
   }
 
@@ -94,24 +80,47 @@ export class BuilderPage {
     var vehicleDetails = {
       make: 'Arium',
       modelType: this.car.name,
-      colour: this.states.colour,
-      VIN: ''
+      colour: this.states.colour
     };
 
+     var options = Object.assign({
+       trim: 'standard',
+       interior: 'red rum',
+       extras: []
+     }, this.states);
+     delete options.colour;
+
     var order = {
-      $class: 'org.acme.vehicle.lifecycle.manufacturer.PlaceOrder',
+      $class: 'org.base.PlaceOrder',
       vehicleDetails: vehicleDetails,
-      manufacturer: 'resource:org.acme.vehicle.lifecycle.manufacturer.Manufacturer#Arium',
-      orderer: 'resource:org.acme.vehicle.lifecycle.PrivateOwner#dan',
+      manufacturer: 'resource:org.base.Manufacturer#Arium',
+      orderer: 'resource:org.base.PrivateOwner#Paul',
+      options: options,
       orderId: this.generateID()
     };
 
     this.ready.then(() => {
-      this.websocket.send(JSON.stringify(order));
 
-      this.navController.push(StatusPage, {
-        car: this.car
+      let parent = this;
+
+      var data = JSON.stringify(order);
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.addEventListener("readystatechange", function () {
+        if (this.readyState === 4) {
+          parent.navController.push(StatusPage, {
+            car: parent.car,
+            orderId: order.orderId
+          });
+        }
       });
+
+      xhr.open("POST", "http://localhost:3000/api/PlaceOrder?access_token=xzd5HAhOHqBP8MFS4zyoHO1HGcNolpcj335cG6iChjjJ1k3swkQUnrgHZmTpAssD");
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(data);
+      document.getElementById('purchase').getElementsByTagName('span')[0].innerHTML = 'Sending request...';
     });
   }
 

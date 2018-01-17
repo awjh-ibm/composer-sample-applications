@@ -9,12 +9,14 @@ var http = require('http');
 var url = require('url');
 var config = require('config');
 
-var nodeRedBaseURL = process.env.NODE_RED_BASE_URL || config.get('nodeRedBaseURL');
+let restServerConfig = process.env.REST_SERVER_CONFIG || config.get('restServer');
 
 
 // create a new express server
 var app = express();
 var server = http.createServer(app);
+
+app.use(bodyParser.json());
 
 // static - all our js, css, images, etc go into the assets path
 app.use('/app', express.static(path.join(__dirname, '../client', 'app')));
@@ -40,7 +42,7 @@ var wss = new WebSocket.Server({ server: server });
 wss.on('connection', function (ws) {
   var location = url.parse(ws.upgradeReq.url, true);
   console.log('client connected', location.pathname);
-  var remoteURL = nodeRedBaseURL + location.pathname;
+  var remoteURL = restServerConfig.webSocketURL + location.pathname;
   console.log('creating remote connection', remoteURL);
   var remote = new WebSocket(remoteURL);
   ws.on('close', function (code, reason) {
@@ -62,14 +64,17 @@ wss.on('connection', function (ws) {
     console.log('message from remote', data);
     ws.send(data);
   });
+
+  remote.on('error', function (data) {
+    console.log('AN ERROR OCCURED: ', data);
+    ws.close();
+  });
 });
 
 // This route deals enables HTML5Mode by forwarding missing files to the index.html
 app.use('/*', function (req, res) {
   res.sendFile(path.join(__dirname, '../client', 'index.html'));
 });
-
-app.use(bodyParser.json());
 
 // get the app environment from Cloud Foundry
 var appEnv = cfenv.getAppEnv();

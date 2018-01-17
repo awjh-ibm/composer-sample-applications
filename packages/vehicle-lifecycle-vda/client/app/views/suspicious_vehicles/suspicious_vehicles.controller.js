@@ -13,7 +13,6 @@ angular.module('bc-vda')
   }
 
   $http.get('vehicles').then(function(response) {
-    console.log(response);
 
     $scope.vehicles = response.data.filter(function(vehicle) {
       return vehicle.suspiciousMessage;

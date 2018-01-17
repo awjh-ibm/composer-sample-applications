@@ -15,6 +15,7 @@ import { Http, Response } from '@angular/http';
 })
 export class StatusPage {
   car: Object;
+  orderId: String;
   stage: Array<String>;
   relativeDate: any;
   config: any;
@@ -22,11 +23,11 @@ export class StatusPage {
   constructor(public navCtrl: NavController, public navParams: NavParams, private http: Http) {
     this.car = navParams.get('car');
     this.stage = [Date.now() + ''];
+    this.orderId = navParams.get('orderId');
 
     this.relativeDate = function(input, start) {
       if (input) {
         input = Date.parse(input);
-        start = Date.parse(start);
         var diff = input - start;
         diff = diff / 1000
         diff = Math.round(diff);
@@ -42,17 +43,13 @@ export class StatusPage {
     var websocket;
 
     var openWebSocket = () => {
-      var webSocketURL;
-      if (this.config.useLocalWS){
-        webSocketURL = 'ws://' + location.host + '/ws/updateorderstatus';
-      } else {
-        webSocketURL = this.config.nodeRedBaseURL+'/ws/updateorderstatus';
-      }
+      var webSocketURL = this.config.restServer.webSocketURL;
+
       console.log('connecting websocket', webSocketURL);
       websocket = new WebSocket(webSocketURL);
 
       websocket.onopen = function () {
-        console.log('updateorderstatus websocket open!');
+        console.log('websocket open!');
       };
 
       websocket.onclose = function() {
@@ -61,14 +58,8 @@ export class StatusPage {
       }
 
       websocket.onmessage = (event) => {
-        if (event.data === '__pong__') {
-          return;
-        }
-
         var status = JSON.parse(event.data);
-        if (status.orderStatus === statuses[0]) {
-          this.stage[0] = status.timestamp;
-        } else {
+        if (status.$class === 'org.base.UpdateOrderStatusEvent') {
           let i = statuses.indexOf(status.orderStatus);
           this.stage[i] = this.relativeDate(status.timestamp, this.stage[0]);
         }

@@ -1,5 +1,5 @@
 var express = require('express')
-var controller = require('./vehicles')
+var controller = require('./orders')
 
 var router = express.Router()
 

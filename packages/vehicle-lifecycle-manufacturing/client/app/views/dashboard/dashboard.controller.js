@@ -3,14 +3,12 @@ angular.module('bc-manufacturer')
 .controller('DashboardCtrl', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
   $scope.statuses = ['PLACED', 'SCHEDULED_FOR_MANUFACTURE', 'VIN_ASSIGNED', 'OWNER_ASSIGNED', 'DELIVERED'];
 
-  $http.get('vehicles').then(function(response, err) {
-    console.log(response);
+  $http.get('orders').then(function(response, err) {
     if (err) {
       console.log(err);
     } else if (response.data.error) {
       console.log(response.data.error.message);
     } else {
-      console.log(response.data);
       if (Array.isArray(response.data)) {
         $scope.orders = response.data.map(function(o) {
           var order = {
@@ -20,18 +18,22 @@ angular.module('bc-manufacturer')
               serial: 'S/N ' + generateSN(),
               colour: o.vehicleDetails.colour
             },
-            status: o.orderStatus
+            placed: Date.parse(o.timestamp)
           };
 
-
           if (o.statusUpdates) {
+            o.statusUpdates.sort(function (a,b) {
+              if (Date.parse(a.timestamp) < Date.parse(b.timestamp))
+                return -1;
+              if (Date.parse(a.timestamp) > Date.parse(b.timestamp))
+                return 1;
+              return 0;
+            })
+            order.status = o.statusUpdates[o.statusUpdates.length-1].orderStatus;
             for (var i = 0; i < o.statusUpdates.length; ++i) {
               var update = o.statusUpdates[i];
               var timestamp = Date.parse(update.timestamp);
-
-              if (update.orderStatus === $scope.statuses[0]) {
-                order.placed = timestamp;
-              } else if (update.orderStatus === $scope.statuses[1]) {
+              if (update.orderStatus === $scope.statuses[1]) {
                 order.manufacture = order.manufacture ? order.manufacture : {};
                 order.manufacture.chassis = timestamp;
                 order.manufacture.interior = timestamp;
@@ -52,7 +54,6 @@ angular.module('bc-manufacturer')
 
           return order;
         });
-        console.log($scope.orders);
       }
     }
   })
@@ -63,91 +64,71 @@ angular.module('bc-manufacturer')
   var updateOrder;
   var destroyed = false;
 
-  function openPlaceOrderWebSocket() {
-    placeOrder = new WebSocket('ws://' + location.host + '/ws/placeorder');
-    placeOrder.onopen = function () {
-      console.log('placeOrder websocket open!');
-      // Notification('PlaceOrder WebSocket connected');
-    };
+  function openWebSocket() {
+    var webSocketURL = 'ws://' + location.host;
+    let websocket = new WebSocket(webSocketURL);
+    websocket.onopen = function () {
+      console.log('Websocket is open');
+    }
 
-    placeOrder.onclose = function () {
-      console.log('closed');
-      // Notification('PlaceOrder WebSocket disconnected');
+    websocket.onclose = function () {
+      console.log('Websocket closed');
       if (!destroyed) {
-        openPlaceOrderWebSocket();
+        openWebSocket();
       }
     }
 
-    placeOrder.onmessage = function(event) {
-      if (event.data === '__pong__') {
-        return;
+    websocket.onmessage = function (event) {
+      var message = JSON.parse(event.data);
+      if(message.$class === 'org.base.PlaceOrderEvent') {
+        handlePlaceOrderEvent(message);
+      } else if (message.$class === 'org.base.UpdateOrderStatusEvent') {
+        handleUpdateOrderEvent(message);
       }
-      var newOrder = JSON.parse(event.data);
-      $scope.orders.push({
-        car: {
-          id: newOrder.orderId,
-          name: newOrder.vehicleDetails.modelType,
-          serial: 'S/N ' + generateSN(),
-          colour: newOrder.vehicleDetails.colour
-        },
-        status: $scope.statuses[0],
-        placed: Date.now()
-      })
-      $scope.$apply()
-      console.log($scope.orders);
     }
   }
 
-  function openUpdateOrderWebSocket() {
-    updateOrder = new WebSocket('ws://' + location.host + '/ws/updateorderstatus');
+  function handlePlaceOrderEvent(newOrder) {
+    $scope.orders.push({
+      car: {
+        id: newOrder.orderId,
+        name: newOrder.vehicleDetails.modelType,
+        serial: 'S/N ' + generateSN(),
+        colour: newOrder.vehicleDetails.colour
+      },
+      status: $scope.statuses[0],
+      placed: Date.now()
+    })
+    $scope.$apply();
+  }
 
-    updateOrder.onopen = function () {
-      console.log('updateorderstatus websocket open!');
-      // Notification('UpdateOrderStatus WebSocket connected');
-    };
-
-    updateOrder.onclose = function() {
-      console.log('closed');
-      // Notification('UpdateOrderStatus WebSocket disconnected');
-      if (!destroyed) {
-        openUpdateOrderWebSocket();
-      }
-    }
-
-    updateOrder.onmessage = function(event) {
-      if (event.data === '__pong__') {
-        return;
-      }
-      var orderEvent = JSON.parse(event.data);
-      for (var i = 0; i < $scope.orders.length; ++i) {
-        var o = $scope.orders[i];
-        if (o.car.id === orderEvent.order.orderId) {
-          o.status = orderEvent.orderStatus;
-          var timestamp = Date.parse(orderEvent.timestamp);
-
-          if (orderEvent.orderStatus === $scope.statuses[1]) {
-            o.manufacture = {
-              chassis: timestamp,
-              interior: timestamp,
-              paint: timestamp
-            };
-          } else if (orderEvent.orderStatus === $scope.statuses[2]) {
-            o.manufacture.vinIssue = timestamp;
-          } else if (orderEvent.orderStatus === $scope.statuses[3]) {
-            o.manufacture.vinPrinting = timestamp;
-          } else if (orderEvent.orderStatus === $scope.statuses[4]) {
-            o.delivery = {
-              shipping: timestamp
-            };
-          }
+  function handleUpdateOrderEvent(orderEvent) {
+    for (var i = 0; i < $scope.orders.length; ++i) {
+      var o = $scope.orders[i];
+      if (o.car.id === orderEvent.order.orderId) {
+        o.status = orderEvent.orderStatus;
+        var timestamp = Date.parse(orderEvent.timestamp);
+        if (orderEvent.orderStatus === $scope.statuses[1]) {
+          o.manufacture = {
+            chassis: timestamp,
+            interior: timestamp,
+            paint: timestamp
+          };
+        } else if (orderEvent.orderStatus === $scope.statuses[2]) {
+          o.manufacture.vinIssue = timestamp;
+        } else if (orderEvent.orderStatus === $scope.statuses[3]) {
+          o.manufacture.vinPrinting = timestamp;
+        } else if (orderEvent.orderStatus === $scope.statuses[4]) {
+          o.delivery = {
+            shipping: timestamp
+          };
         }
       }
-      $scope.$apply();
     }
+    $scope.$apply();
   }
 
-  openPlaceOrderWebSocket();
-  openUpdateOrderWebSocket();
+  openWebSocket();
 
   var generateVIN = function() {
     function s4() {
@@ -178,8 +159,13 @@ angular.module('bc-manufacturer')
       status.vin = generateVIN();
     }
     status.orderStatus = $scope.statuses[count];
-    status.timestamp =  Date.now();
-    updateOrder.send(JSON.stringify(status));
+
+    $http.post('updateOrderStatus', status).then(function(response, err) {
+      if(err) {
+        console.log(err.message);
+      }
+    });
+
   }
 
   $scope.start = function(order) {
@@ -188,8 +174,6 @@ angular.module('bc-manufacturer')
 
     var status = {
       vin: '',
-      v5c: '1G1JF52F737316937',
-      numberPlate: '',
       order: order.car.id
     };
 

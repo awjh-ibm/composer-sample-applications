@@ -1,8 +1,9 @@
 var request = require('request');
 var config = require('config');
 
-var composerBaseURL = process.env.COMPOSER_BASE_URL || config.get('composerRestServerBaseURL');
-var endpoint = composerBaseURL + '/api/Vehicle'
+let restServerConfig = process.env.REST_SERVER_CONFIG || config.get('restServer');
+var composerBaseURL = restServerConfig.httpURL;
+var endpoint = composerBaseURL + '/Vehicle'
 
 var get = (req, res) => {
   request.get({

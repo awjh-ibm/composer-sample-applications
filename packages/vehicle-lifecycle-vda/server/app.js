@@ -7,7 +7,7 @@ var express = require('express'),
   url = require('url'),
   config = require('config');
 
-var nodeRedBaseURL = process.env.NODE_RED_BASE_URL || config.get('nodeRedBaseURL');
+let restServerConfig = process.env.REST_SERVER_CONFIG || config.get('restServer');
 
 // create a new express server
 var app = express();
@@ -37,7 +37,7 @@ var wss = new WebSocket.Server({ server: server });
 wss.on('connection', function (ws) {
   var location = url.parse(ws.upgradeReq.url, true);
   console.log('client connected', location.pathname);
-  var remoteURL = nodeRedBaseURL + location.pathname;
+  var remoteURL = restServerConfig.httpURL + location.pathname;
   console.log('creating remote connection', remoteURL);
   var remote = new WebSocket(remoteURL);
   ws.on('close', function (code, reason) {
@@ -58,6 +58,10 @@ wss.on('connection', function (ws) {
   remote.on('message', function (data) {
     console.log('message from remote', data);
     ws.send(data);
+  });
+  remote.on('error', function (data) {
+    console.log('AN ERROR OCCURED: ', data);
+    ws.close();
   });
 });
 
