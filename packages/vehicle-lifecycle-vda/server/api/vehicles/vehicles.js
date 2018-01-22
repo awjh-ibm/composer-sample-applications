@@ -6,11 +6,24 @@ var composerBaseURL = restServerConfig.httpURL;
 var endpoint = composerBaseURL + '/Vehicle'
 
 var get = (req, res) => {
-  request.get({
-    url: endpoint,
-    json: true
+  var fullUrl = req.protocol + '://' + req.get('host');
+  request.post({
+    url: fullUrl+'/user'
   }, (err, response, body) => {
-    res.send(body)
+      if (err) {
+        res.status(500).send(err.message);
+      } else {
+        request.get({
+          url: endpoint+'?access_token='+restServerConfig.accessToken,
+          json: true
+        }, (err, response, body) => {
+          if (err) {
+            res.status(500).send(err.message);
+          } else {
+            res.send(body)
+          }
+        })
+      }
   })
 }
 

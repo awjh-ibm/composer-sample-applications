@@ -100,28 +100,46 @@ export class BuilderPage {
     };
 
     this.ready.then(() => {
-
-      let parent = this;
-
-      var data = JSON.stringify(order);
-
-      var xhr = new XMLHttpRequest();
-      xhr.withCredentials = true;
-
-      xhr.addEventListener("readystatechange", function () {
-        if (this.readyState === 4) {
-          parent.navController.push(StatusPage, {
-            car: parent.car,
-            orderId: order.orderId
-          });
-        }
-      });
-
-      xhr.open("POST", "http://localhost:3000/api/PlaceOrder?access_token=xzd5HAhOHqBP8MFS4zyoHO1HGcNolpcj335cG6iChjjJ1k3swkQUnrgHZmTpAssD");
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(data);
       document.getElementById('purchase').getElementsByTagName('span')[0].innerHTML = 'Sending request...';
+      this.setUser(this.placeOrder, order);
     });
+  }
+
+  setUser(callback, order) {
+    var parent = this;
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function () {
+      if (this.readyState === 4) {
+        callback(order, parent);
+      }
+    });
+
+    xhr.open("POST", "http://localhost:3000/api/wallet/Paul@vehicle-lifecycle-network-14/setDefault?access_token="+this.config.restServer.accessToken);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send();
+  }
+
+  placeOrder(order, parent) {
+
+    var data = JSON.stringify(order);
+
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function () {
+      if (this.readyState === 4) {
+        parent.navController.push(StatusPage, {
+          car: parent.car,
+          orderId: order.orderId
+        });
+      }
+    });
+
+    xhr.open("POST", "http://localhost:3000/api/PlaceOrder?access_token="+parent.config.restServer.accessToken);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(data);
   }
 
   containsExtra(state) {

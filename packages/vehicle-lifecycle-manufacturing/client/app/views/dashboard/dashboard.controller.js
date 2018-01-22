@@ -29,7 +29,7 @@ angular.module('bc-manufacturer')
                 return 1;
               return 0;
             })
-            order.status = o.statusUpdates[o.statusUpdates.length-1].orderStatus;
+            order.status = o.statusUpdates.length > 0 ? o.statusUpdates[o.statusUpdates.length-1].orderStatus : $scope.statuses[0];
             for (var i = 0; i < o.statusUpdates.length; ++i) {
               var update = o.statusUpdates[i];
               var timestamp = Date.parse(update.timestamp);

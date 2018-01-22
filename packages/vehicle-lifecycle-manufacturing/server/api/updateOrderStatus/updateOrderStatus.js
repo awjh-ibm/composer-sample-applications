@@ -7,13 +7,21 @@ var composerBaseURL = restServerConfig.httpURL;
 var endpoint = composerBaseURL + '/UpdateOrderStatus'
 
 var get = (req, res) => {
-  console.log('What is endpoint',endpoint);
-  request.get({
-    url: endpoint,
-    json: true
+  var fullUrl = req.protocol + '://' + req.get('host');
+  request.post({
+    url: fullUrl+'/user'
   }, (err, response, body) => {
-    res.send(body)
-  })
+      if (err) {
+        res.status(500).send(err.message);
+      } else {
+        request.get({
+          url: endpoint+'?access_token='+restServerConfig.accessToken,
+          json: true
+        }, (err, response, body) => {
+          res.send(body)
+        })
+      }
+  });
 }
 
 var post = (req, res) => {
@@ -22,24 +30,39 @@ var post = (req, res) => {
     res.status(400).send('Body must be provided');
   }
 
-  var options = {
-    method: 'POST',
-    url: endpoint,
-    qs: {
-      access_token: 'xzd5HAhOHqBP8MFS4zyoHO1HGcNolpcj335cG6iChjjJ1k3swkQUnrgHZmTpAssD'
-    },
-    headers: {
-       'Content-Type': 'application/json'
-    },
-    body: Object.assign({'$class': 'org.base.UpdateOrderStatus'}, req.body),
-    json: true
-  };
-
-  request(options, (err, response, body) => {
-      if(err) {
+  var fullUrl = req.protocol + '://' + req.get('host');
+  request.post({
+    url: fullUrl+'/user'
+  }, (err, response, body) => {
+      if (err) {
         res.status(500).send(err.message);
       } else {
-        res.send(body);
+
+        var options = {
+          method: 'POST',
+          url: endpoint,
+          qs: {
+            access_token: restServerConfig.accessToken
+          },
+          headers: {
+             'Content-Type': 'application/json'
+          },
+          body: Object.assign({'$class': 'org.base.UpdateOrderStatus'}, req.body),
+          json: true
+        };
+
+        if(options.body.order.indexOf('resource:org.base.Order#') === -1) {
+          options.body.order = 'resource:org.base.Order#'+options.body.order
+        }
+
+        request(options, (err, response, body) => {
+            console.log(body);
+            if(err) {
+              res.status(500).send(err.message);
+            } else {
+              res.send(body);
+            }
+        });
       }
   });
 }

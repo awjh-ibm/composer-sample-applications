@@ -25,11 +25,11 @@ angular.module('bc-vda')
                                     displayTransaction = true;
                                     break;
 
-          case 'PlaceOrder':        transactionSubmitter = transaction.eventsEmitted[0].orderer.replace('resource:org.base.PrivateOwner#', '');
+          case 'PlaceOrder':        transactionSubmitter = transaction.participantInvoking.replace('resource:org.base.PrivateOwner#', '');
                                     displayTransaction = true;
                                     break;
 
-          case 'UpdateOrderStatus': transactionSubmitter = transaction.eventsEmitted[0].order.manufacturer.replace('resource:org.base.Manufacturer#', '');
+          case 'UpdateOrderStatus': transactionSubmitter = transaction.participantInvoking.replace('resource:org.base.Manufacturer#', '');
                                     displayTransaction = true;
                                     orderStatus = transaction.eventsEmitted[0].orderStatus;
                                     break;
