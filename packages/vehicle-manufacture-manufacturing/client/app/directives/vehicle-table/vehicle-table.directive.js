@@ -4,7 +4,7 @@ angular.module('bc-vehicle-table', [])
 	return {
 		restrict: 'E',
 		replace: true,
-		templateUrl: 'app/directives/vehicle-table/vehicle-table.html',
+		templateUrl: 'manufacturer/app/directives/vehicle-table/vehicle-table.html',
 		scope: {
 			vehicles : '=',
 			vehicleSelect: "&",

@@ -1,8 +1,8 @@
 {
-  "name": "vehicle-manufacture-manufacturing",
+  "name": "vehicle-manufacture-tutorial",
   "private": true,
   "version": "0.0.6",
-  "description": "Vehicle Lifecycle - A manufacturers view",
+  "description": "Vehicle Lifecycle - Tutorial",
   "main": "index.js",
   "scripts": {
     "postinstall": "bower install",

@@ -4,7 +4,7 @@ angular.module('bc-vda')
   return {
     restrict: 'E',
     replace: true,
-    templateUrl: 'app/directives/blockchain-view/blockchain-view.html',
+    templateUrl: 'regulator/app/directives/blockchain-view/blockchain-view.html',
     scope: {
       chain: '='
     },

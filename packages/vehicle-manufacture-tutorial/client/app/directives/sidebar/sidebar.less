@@ -1,0 +1,56 @@
+.tut-sidebar {
+    width: 300px;
+    border-right: 1px solid #F00;
+	height: 100%;
+    min-height: 100%;
+	display: flex;
+	flex-direction: column;
+		
+	#app-links {
+		background-color: green;
+        
+        .app-tab {
+            cursor: pointer;
+            padding: 10px;
+
+            &:hover {
+                background-color: pink!important;
+            }
+
+            &:first-child {
+                margin-top: 10px;
+            }
+
+            &:last-child {
+                margin-bottom: 10px;
+            }
+
+            &.selected {
+                background-color: darksalmon;
+            }
+        }
+	}
+	
+	#tutorial-text {
+        background-color: blueviolet;
+        padding: 5px;
+        flex: 1;
+        overflow: auto;
+	}
+	
+	#actions {
+        background-color: yellow;
+        text-align: center;
+        
+        .button {
+            display: inline-block;
+            margin: 25px 0;
+            padding: 10px;
+            border: 1px solid #000;
+
+            &:hover {
+                background-color: cyan;
+            }
+        }
+	}
+}

@@ -1,5 +1,4 @@
 angular.module('bc-manufacturer', [
-  'bc-view',
   'bc-vehicle-table',
   'ui.router',
   'ui-notification'
@@ -13,12 +12,12 @@ angular.module('bc-manufacturer', [
   });
 
   $urlRouterProvider
-    .otherwise('/dashboard');
+    .otherwise('/manufacturer-dashboard');
 
   $stateProvider
-    .state('dashboard', {
-      url: '/dashboard',
-      templateUrl: 'app/views/dashboard/dashboard.html',
+    .state('manufacturer-dashboard', {
+      url: '/manufacturer-dashboard',
+      templateUrl: 'manufacturer/app/views/dashboard/dashboard.html',
       controller: 'DashboardCtrl'
     });
 

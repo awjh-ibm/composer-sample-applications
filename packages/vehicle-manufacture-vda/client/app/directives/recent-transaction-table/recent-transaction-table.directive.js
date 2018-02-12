@@ -4,7 +4,7 @@ angular.module('bc-vda')
   return {
     restrict: 'E',
     replace: true,
-    templateUrl: 'app/directives/recent-transaction-table/recent-transaction-table.html',
+    templateUrl: 'regulator/app/directives/recent-transaction-table/recent-transaction-table.html',
     scope: {
       transactions: '='
     },

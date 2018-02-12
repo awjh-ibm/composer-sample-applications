@@ -11,12 +11,12 @@ angular.module('bc-vda', [
   });
 
   $urlRouterProvider
-    .otherwise('/dashboard');
+    .otherwise('/regulator-dashboard');
 
   $stateProvider
-    .state('dashboard', {
-      url: '/dashboard',
-      templateUrl: 'app/views/dashboard/dashboard.html',
+    .state('regulator-dashboard', {
+      url: '/regulator-dashboard',
+      templateUrl: 'regulator/app/views/dashboard/dashboard.html',
       controller: 'DashboardCtrl'
     })
 

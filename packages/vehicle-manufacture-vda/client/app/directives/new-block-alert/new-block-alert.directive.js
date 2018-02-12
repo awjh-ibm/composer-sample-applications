@@ -4,7 +4,7 @@ angular.module('bc-vda')
   return {
     restrict: 'E',
     replace: true,
-    templateUrl: 'app/directives/new-block-alert/new-block-alert.html',
+    templateUrl: 'regulator/app/directives/new-block-alert/new-block-alert.html',
     scope: {
       chain: '='
     },
@@ -34,7 +34,7 @@ angular.module('bc-vda')
         newAlert.append('div')
           .attr('class', 'bc-view-alert-text')
           .html(function(d) {
-            return '<img class="bc-vda-new-block" src="assets/images/new_block.svg"/>'+
+            return '<img class="bc-vda-new-block" src="regulator/assets/images/new_block.svg"/>'+
                  '<p class="bc-vda-new-block-title">NEW TRANSACTION</p>'+
                  '<p class="bc-vda-new-block-id">#'+d.id+'</p>'+
                  '<p class="bc-vda-new-block-new-vehicle-order">'+d.type+'</p>'

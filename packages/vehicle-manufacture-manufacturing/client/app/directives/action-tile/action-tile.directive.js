@@ -4,7 +4,7 @@ angular.module('bc-manufacturer')
 	return {
 		restrict: 'E',
 		replace: true,
-		templateUrl: 'app/directives/action-tile/action-tile.html',
+		templateUrl: 'manufacturer/app/directives/action-tile/action-tile.html',
 		scope: {
 			title : '=',
 			description : '=',

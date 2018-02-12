@@ -3,7 +3,7 @@ angular.module('bc-vda')
 .directive('bcVdaHeader', ['$location', '$http', function (location, $http) {
   return {
     restrict: 'E',
-    templateUrl: 'app/directives/header/header.html',
+    templateUrl: 'regulator/app/directives/header/header.html',
     link: function (scope) {
       scope.registered_vehicles = 0;
       scope.vin_assigned = 0;
