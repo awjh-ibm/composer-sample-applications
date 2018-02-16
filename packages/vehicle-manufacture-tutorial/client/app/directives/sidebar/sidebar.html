@@ -1,25 +1,43 @@
-<div class="tut-sidebar">
+<div id="tut-sidebar" ng-class="{'expanded': expanded}">
+        <div id="expandContract" ng-click="expanded = !expanded" >
+        </div>
         <div id="app-links" >
             <div class="app-tab" ng-class="{'selected': location === '/car-builder'}" ng-click="location = '/car-builder'" >
-                Builder
+                <div class="app-icon" >
+                    <svg aria-hidden="true" >
+                        <use xlink:href="/assets/images/buyer.svg#buyer"></use>
+                    </svg>
+                </div>
+                <div class="app-name" >Builder</div>
             </div>
             <div class="app-tab" ng-class="{'selected': location === '/manufacturer-dashboard'}" ng-click="location = '/manufacturer-dashboard'" >
-                Manufacturer
+                <div class="app-icon" >
+                    <svg aria-hidden="true" >
+                        <use xlink:href="/assets/images/manufacturer.svg#manufacturer"></use>
+                    </svg>
+                </div>
+                <div class="app-name" >Manufacturer</div>
             </div>
             <div class="app-tab" ng-class="{'selected': location === '/regulator-dashboard'}" ng-click="location = '/regulator-dashboard'" >
-                Regulator
+                <div class="app-icon" >
+                    <svg aria-hidden="true" >
+                        <use xlink:href="/assets/images/regulator.svg#regulator"></use>
+                    </svg>
+                </div>
+                <div class="app-name" >Regulator</div>
             </div>
         </div>
         <div id="tutorial-text" >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi semper libero tortor, sed feugiat mauris consectetur a. Mauris non risus quis orci iaculis lobortis cursus sed arcu. Phasellus laoreet facilisis urna. Proin quis faucibus turpis. Etiam id quam lacinia, scelerisque turpis a, tincidunt magna. Integer tempus eget sem mattis iaculis. Nulla eu dui vulputate, lacinia lacus et, congue elit. Aenean finibus ornare quam eu auctor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed ac erat porta, pharetra lectus id, aliquet arcu. Integer facilisis nunc nulla. Aenean viverra magna non vestibulum semper. Vivamus mi dolor, venenatis id massa id, sollicitudin eleifend sem. Vestibulum eu ligula tristique, cursus massa sit amet, pulvinar lacus. Ut erat nunc, placerat quis hendrerit quis, accumsan quis nisl. Pellentesque consectetur odio sit amet neque tincidunt, in hendrerit neque sodales.
-            <br /><br />
-            Suspendisse nec ex in velit ultrices molestie. Pellentesque ultricies viverra massa, sit amet euismod ipsum congue eu. Nulla id turpis ut neque accumsan convallis eu in justo. Proin at lorem vehicula, lacinia arcu id, cursus lacus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Quisque lacinia tellus quis porttitor vulputate. Curabitur placerat est id augue feugiat efficitur.
-            <br /><br />    
-            Proin augue dui, finibus ut ornare tempus, consectetur sit amet augue. Pellentesque consectetur malesuada ante, eu varius orci volutpat ut. Praesent ac efficitur erat. Duis diam nisl, fringilla quis sapien ut, commodo venenatis lorem. Duis tempor sodales orci nec lobortis. Phasellus ultrices mi ut nunc sollicitudin, quis facilisis mi ultricies. Phasellus ullamcorper turpis in turpis tincidunt bibendum. Aliquam nec nisl nunc. Suspendisse eu metus nisl. Nulla interdum, odio eu iaculis accumsan, ipsum augue bibendum est, auctor gravida metus libero ut enim. Cras ullamcorper lacus ac sollicitudin pharetra. Integer ut elit sed ligula rhoncus gravida. Cras facilisis metus sit amet faucibus rhoncus. Pellentesque vel eros nec dolor consequat eleifend in quis purus. 
+            <table>
+                <tr ng-class="{'complete': item.complete}" ng-repeat="item in tutorial[tutorialPage].steps">
+                    <td>{{!item.complete ? ($index+1)+'.' : '&#10004;' }}</td><td>{{ item.text }}</td>
+                </tr>
+            </table>
+            
         </div>
         <div id="actions">
-            <div class="button" >
-                Do Something
-            </div>
+            <button ng-if="tutorial[tutorialPage].button" ng-disabled="tutorial[tutorialPage].button.disabled" ng-click="tutorial[tutorialPage].button.action()" >
+                {{ tutorial[tutorialPage].button.text }}
+            </button>
         </div>
     </div>

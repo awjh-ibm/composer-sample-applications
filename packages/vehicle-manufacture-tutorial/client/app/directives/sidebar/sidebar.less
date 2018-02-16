@@ -1,56 +1,184 @@
-.tut-sidebar {
-    width: 300px;
-    border-right: 1px solid #F00;
+@import "../../../assets/stylesheets/colours.less";
+@import "../../../assets/stylesheets/common.less";
+
+#tut-sidebar {
+    width: @sidebar-expanded;
 	height: 100%;
     min-height: 100%;
 	display: flex;
-	flex-direction: column;
+    flex-direction: column;
+    background-color: @dark-grey-blue;
+
+    #expandContract {
+        border-right: 1px solid @white;
+        border-bottom: 1px solid @white;
+        width: @sidebar-contracted;
+        height: @sidebar-contracted;
+        position: relative;
+        cursor: pointer;
+
+        &:before, &:after {
+            position: absolute;
+            left: 50%;
+            top: calc(50% - 12.5px);
+            content: ' ';
+            height: 27.5px;
+            width: 1px;
+            background-color: @white;
+        }
+
+        &:before {
+            transform: rotate(45deg);
+        }
+        &:after {
+            transform: rotate(-45deg);
+        }
+
+        &:hover {
+            background-color: @bright-blue;
+        }
+    }
 		
-	#app-links {
-		background-color: green;
-        
+	#app-links {        
         .app-tab {
             cursor: pointer;
-            padding: 10px;
+            color: @bright-blue;
+            display: flex;
+            flex-direction: row;
+            margin: 15px 0;
 
             &:hover {
-                background-color: pink!important;
-            }
-
-            &:first-child {
-                margin-top: 10px;
-            }
-
-            &:last-child {
-                margin-bottom: 10px;
+                background-color: @bright-blue;
+                color: @white;
+                .app-icon {
+                    svg {
+                        fill: @white;
+                    }
+                }
             }
 
             &.selected {
-                background-color: darksalmon;
+                background-color: @bright-blue;
+                color: @white;
+                .app-icon {
+                    svg {
+                        fill: @white;
+                    }
+                }
+            }
+
+            .app-icon {
+                width: @sidebar-contracted;
+                height: 25px;
+                padding: 10px 0;
+                text-align: center;
+
+                svg {
+                    height: 25px;
+                    width: 25px;
+                    fill: @bright-blue;
+                }
+            }
+
+            .app-name {
+                display: flex;
+                flex: 1;
+                align-items: center;
+                justify-content: left;
             }
         }
 	}
 	
 	#tutorial-text {
-        background-color: blueviolet;
-        padding: 5px;
+        padding: 10px;
         flex: 1;
         overflow: auto;
-	}
-	
-	#actions {
-        background-color: yellow;
-        text-align: center;
-        
-        .button {
-            display: inline-block;
-            margin: 25px 0;
-            padding: 10px;
-            border: 1px solid #000;
+        color: @white;
+        display: flex;
+        align-items: flex-end;
 
-            &:hover {
-                background-color: cyan;
+        table {
+            border: none;
+            border-collapse: collapse;
+
+            tr {
+                vertical-align: top;
+
+                &.complete {
+                    td {
+                        background-color: limegreen;
+                    }
+                }
+
+                td {
+                    padding: 10px 0;
+
+                    &:first-child {
+                        padding-right: 10px;
+                    }
+                }
             }
         }
 	}
+	
+	#actions {
+        padding: 50px 25px;  
+        button {
+            display: inline-block;
+            padding: 15px;
+            background-color: transparent;
+            border: 1px solid @white;
+            cursor: pointer;
+            color: #FFF;
+            font-size: 1.2em;
+            font-family: @plainFont;
+            font-weight: @light;
+
+            &:disabled, &[disabled] {
+                opacity: 0.5;
+                background-color: transparent!important;
+                color: @white!important;
+            }
+
+            &:hover {
+                background-color: @white;
+                color: @dark-grey-blue;
+            }
+        }
+    }
+    
+    &:not(.expanded) {
+        width: @sidebar-contracted;
+        #expandContract {
+            border-right: none;
+
+            &:before, &:after {
+                height: 25px;
+            }
+
+            &:before {
+                transform: rotate(0deg);
+            }
+
+            &:after {
+                transform: rotate(-90deg);
+            }
+        }
+
+        #app-links {        
+            .app-tab {
+                .app-name {
+                    display: none;
+                }
+            }
+        }
+
+        #tutorial-text {
+            display: none;
+        }
+
+        #actions {
+            display: none;
+        }
+    }
 }

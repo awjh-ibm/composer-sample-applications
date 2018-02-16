@@ -5,7 +5,7 @@ angular.module('tutorial')
     restrict: 'E',
     templateUrl: 'app/directives/sidebar/sidebar.html',
     link: function (scope, element, attrs) {
-      scope.location = "/car-builder";
+      scope.expanded = false;
     }
   };
 }])
