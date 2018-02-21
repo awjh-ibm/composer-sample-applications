@@ -27,48 +27,56 @@ page-login {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-around;
 
-      .logo {
-        height: 65px;
-        margin-top: 151px;
+      .details {
+        flex: 66;
+        padding-top: 10vh;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
 
-        @media (min-width: $ipad) {
-          height: 85px;
+        .logo, .picture {
+          display: block;
+          margin-bottom: 5vh;
+        }
+
+        .logo {
+          height: 50px;
+        }
+
+        .picture {
+          height: 100px;
+          width: 100px;
+        }
+        
+        h2 {
+          color: #FFF;
+          margin: 0;
+          margin-bottom: 25px;
         }
       }
 
+      .holder {
+        flex: 33;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        width: 56vh;
+        max-width: 80%;
+        align-items: center;
 
-      .picture {
-        margin: 38px 0 52px 0;
-        height: 83px;
+        #buildCar {
+          width: 100%;
+          max-width: 400px;
+          min-width: 170px;
+          height: 11vh;
+          max-height: 5em;
 
-        @media (min-width: $ipad) {
-          height: 105px;
-        }
-      }
-
-
-      h2 {
-        color: white;
-        margin: 0 0 254px 0;
-        font-size: 18px;
-        font-family: OpenSans;
-      }
-
-      button.button {
-        width: 290px;
-        height: 61px;
-        position: absolute;
-        bottom: 65px;
-        left: 43px;
-
-        @media (min-width: $ipad) {
-          left: 239px;
-        }
-
-        @media screen {
-          left: auto;
+          img {
+            height: 0.8em;
+          }
         }
       }
     }
