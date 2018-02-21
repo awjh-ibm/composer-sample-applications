@@ -188,12 +188,6 @@ angular.module('bc-manufacturer')
 
   $scope.$on('$destroy', function () {
     destroyed = true;
-    if (placeOrder) {
-      placeOrder.close();
-    }
-    if (updateOrder) {
-      updateOrder.close();
-    }
   });
 }])
 

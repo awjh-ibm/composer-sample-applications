@@ -9,6 +9,8 @@ var http = require('http');
 var url = require('url');
 var config = require('config');
 
+var TutorialParser = require(__dirname+'/utils/tutorialParser');
+
 // create a new express server
 var app = express();
 var server = http.createServer(app);
@@ -49,13 +51,18 @@ if (process.env.REST_SERVER_CONFIG ) {
     console.error('Error getting rest config from env vars, using default');
   }
 }
+
+var tutorialParser = new TutorialParser(path.join(__dirname,'../tutorial.md'));
+var tutorialMdAsObj = tutorialParser.parse();
 app.set('config', {
-  restServer: restServerConfig
+  restServer: restServerConfig,
+  tutorial: tutorialMdAsObj
 })
 
 app.get('/assets/config.json', (req, res) => {
   res.json({
-    restServer: restServerConfig
+    restServer: restServerConfig,
+    tutorial: tutorialMdAsObj
   })
 })
 

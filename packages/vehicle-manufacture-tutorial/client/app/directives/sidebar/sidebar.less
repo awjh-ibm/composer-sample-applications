@@ -1,5 +1,6 @@
 @import "../../../assets/stylesheets/colours.less";
 @import "../../../assets/stylesheets/common.less";
+@import "../../../assets/stylesheets/font.less";
 
 #tut-sidebar {
     width: @sidebar-expanded;
@@ -90,33 +91,27 @@
 	}
 	
 	#tutorial-text {
-        padding: 10px;
+        padding: 10px 25px;
         flex: 1;
         overflow: auto;
         color: @white;
         display: flex;
-        align-items: flex-end;
+        flex-direction: column;
+        justify-content: end;
 
-        table {
-            border: none;
-            border-collapse: collapse;
-
-            tr {
-                vertical-align: top;
-
-                &.complete {
-                    td {
-                        background-color: limegreen;
-                    }
-                }
-
+        .holder {
+            &:not(:first-child) {
+                margin-top: 25px;
+            }
+            &.complete {
                 td {
-                    padding: 10px 0;
-
-                    &:first-child {
-                        padding-right: 10px;
-                    }
+                    background-color: limegreen;
                 }
+            }
+
+            .title {
+                margin-bottom: 25px;
+                font-weight: @bold;
             }
         }
 	}
@@ -130,7 +125,7 @@
             border: 1px solid @white;
             cursor: pointer;
             color: #FFF;
-            font-size: 1.2em;
+            font-size: 1em;
             font-family: @plainFont;
             font-weight: @light;
 

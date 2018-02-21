@@ -9,35 +9,37 @@ angular.module('tutorial')
       const allowableVerticle = ['top', 'bottom'];
       const allowableHorizontal = ['left', 'right'];
 
-      scope.notifications = [
-        {
-          title: 'Hello',
-          text: 'Click on the \'Add\' icon to bring up the tutorial and begin the demo.',
-          position: {
-            vertical: 'top',
-            horizontal: 'left'
-          },
-          animate: 'fade'
-        },
-        {
-          text: 'If at any point you would like to reset the tutorial and start again, click the icon in the top right.',
-          position: {
-            vertical: 'top',
-            horizontal: 'right'
-          },
-          animate: 'fade'
-        }
-      ];
+      scope.$on('removeNotification', (event, data) => {
+        scope.removeNotification(data[0], data[1], data[2], data[3]);
+      })
 
-      scope.removeNotification = (index) => {
-        scope.notifications.splice(index, 1);
+      scope.removeNotification = (title, text, vertical, horizontal) => {
+        scope.notifications.some((scopeNotification, index) => {
+          if(title == scopeNotification.title && text == scopeNotification.text && vertical.toLowerCase() == scopeNotification.position.vertical && horizontal.toLowerCase() == scopeNotification.position.horizontal) {
+            scope.notifications.splice(index, 1);
+            return;
+          }
+        })
 
         if (!scope.$$phase) {
           scope.$apply();
         }
       };
 
+      scope.$on('removeAllNotifications', () => {
+        scope.notifications = [];
+        if (!scope.$$phase) {
+          scope.$apply();
+        }
+      });
+
+      scope.$on('addNotification', (event, data) => {
+        scope.addNotification(data[0], data[1], data[2], data[3]);
+      })
+
       scope.addNotification = (title, text, vertical, horizontal) => {
+        vertical = vertical.toLowerCase();
+        horizontal = horizontal.toLowerCase();
         var notification = {}
         if (title) {
           notification.title = title;
@@ -54,8 +56,8 @@ angular.module('tutorial')
         notification.animate = 'fade';
 
         notification.position = {};
-        notification.position.vertical = vertical;
-        notification.position.horizontal = horizontal;
+        notification.position.vertical = vertical.toLowerCase();
+        notification.position.horizontal = horizontal.toLowerCase();
 
         scope.notifications.forEach((el, index) => {
           el.animate = 'none';
@@ -72,14 +74,6 @@ angular.module('tutorial')
           scope.$apply();
         }
       }
-
-      setTimeout(() => {
-        scope.addNotification('Test', 'This is a test notification', 'top', 'left');
-      }, 2000)
-
-      setTimeout(() => {
-        scope.addNotification('Another Test', 'This is a another test notification', 'bottom', 'left');
-      }, 4000)
     }
   };
 }])

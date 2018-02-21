@@ -1,26 +1,7 @@
-# Blockchain - Manufacturer
+# Blockchain - Tutorial
 
-### App Dependencies
+This is the tutorial guide for the vehicle manufacture demo. The tutorial can be run as an application to help users run through the demo, providing information on what to do as well as why blockchain is useful for the task. 
 
-Install NodeJS from here https://nodejs.org/ and then install bower using the node package manager (npm) that comes with NodeJS:
+The tutorial instructions can also be view in this [file](tutorial.md)
 
-    npm install -g bower
-
-### Setting up the App
-
-Once git cloned, run the following commands having navigated to the relevant directory in the command line or terminal:
-
-    npm install
-    bower install
-
-This will download all of the relevant dependencies you will need to get going.
-
-### Run the app
-
-To run the app, call:
-
-    npm start
-
-### Configuration
-
-Application configuration can be found in `config/default.json`
+You can run the tutorial by using the command `npm start` in this folder.

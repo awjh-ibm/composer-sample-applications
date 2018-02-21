@@ -1,92 +1,59 @@
 angular.module('tutorial')
 
-.controller('TutorialCtrl', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
+.controller('TutorialCtrl', ['$scope', '$rootScope', '$sce', '$http', function ($scope, $rootScope, $sce, $http) {
     var destroyed = false;
     $scope.location = '/car-builder';    
     $scope.ready = false;
-    document.getElementById('carBuilder').addEventListener('load', function (){
-        document.getElementById('carBuilder').removeEventListener('load', arguments.callee);
-        $scope.ready = true;
-        if(!$scope.$$phase) {
-            $scope.$apply();
-        }
-        $scope.tutorial[0].steps[0].listener();
-    });
     $scope.tutorialPage = 0;
-    $scope.tutorial = [{
-        steps: [{
-            text: 'Click \'BUILD YOUR CAR\'',
-            listener: () => {
-                addiFrameEventListener('carBuilder', '#buildCar', 'click', 0, 0);
-            },
-            complete: false
-        },
-        {
-            text: 'Select a car to build by swiping left and right then click \'BUILD\'',
-            listener: () => {
-                addiFrameEventListener('carBuilder', '.slideEl', 'click', 0, 1);
-                addiFrameEventListener('carBuilder', '.slideEl', 'click', 0, 1);
-                addiFrameEventListener('carBuilder', '.slideEl', 'click', 0, 1);
-            },
-            complete: false
-        },
-        {
-            text: 'Select your trim, colour, interior and optional extras',
-            listener: () => {
-                addiFrameAttributeListener('carBuilder', 'purchase', 'disabled', 0, 2);
-            },
-            complete: false
-        },
-        {
-            text: 'Press \'PURCHASE AND BUILD\'',
-            listener: () => {
-                addiFrameEventListener('carBuilder', '#purchase', 'click', 0, 3);
-            },
-            complete: false
-        }],
-        button: {
-            text: 'See manufacturer\'s view',
-            action: () => {
-                changePage('/manufacturer-dashboard', true);
-            },
-            enablementRule: {
-                key: '$class',
-                value: 'org.base.PlaceOrderEvent',
-                comparison: 'EQUAL',
-                combineWith: null
-            },
-            disabled: true
-        }
-    },
-    {
-        steps: [{
-            text: 'Click \'START MANUFACTURE\'',
-            listener: () => {
-                addiFrameEventListener('manufacturer', '.start-manufacture', 'click', 1, 0);
-            },
-            complete: false
-        }],
-        button: {
-            text: 'See regulator\'s view',
-            action: () => {
-                changePage('/regulator-dashboard', true);
-            },
-            enablementRule: {
-                key: '$class',
-                value: 'org.base.UpdateOrderStatusEvent',
-                comparison: "EQUAL",
-                combineWith: {
-                    connection: 'AND',
-                    rule: {
-                        key: 'orderStatus',
-                        value: 'DELIVERED',
-                        comparison: "EQUAL"
-                    }
+    $scope.notifications = [];
+    
+    $http({method: 'GET', url: '/assets/config.json'}).then((config) => {
+        $scope.tutorial = config.data.tutorial
+
+        $scope.tutorial.forEach((page) => {
+            page.steps = page.steps.map((step) => {
+                step.text = $sce.trustAsHtml(step.text);
+                step.title = $sce.trustAsHtml(step.title);
+                return step;
+            })
+        });
+
+        document.getElementById('carBuilder').addEventListener('load', function (){
+            document.getElementById('carBuilder').removeEventListener('load', arguments.callee);
+            $scope.ready = true;
+            if(!$scope.$$phase) {
+                $scope.$apply();
+            }
+
+            $scope.tutorial[0].notifications.forEach((notification, index) => {
+
+                if(!notification.createWhen) {
+                    $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+                } else if(notification.createWhen.rule_type === 'LISTENER') {
+                    setupObjectListeners($scope, notification.createWhen, () => {
+                        $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+                    });
                 }
-            },
-            disabled: true
-        }
-    }];
+
+                if(notification.destroyWhen && notification.destroyWhen.rule_type === 'LISTENER') {
+                    setupObjectListeners($scope, notification.destroyWhen, () => {
+                        $rootScope.$broadcast('removeNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+                    });
+                }
+            });
+
+            if($scope, $scope.tutorial[0].button.enablementRule) {
+                setupObjectListeners($scope, $scope.tutorial[0].button.enablementRule, () => {
+                    $scope.tutorial[0].button.disabled = false;
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+            }
+
+            setupStageListeners($scope, $scope.tutorial[0].steps[0].listeners, 0, 0);
+        });  
+    })
 
     function openWebSocket() {
         var webSocketURL = 'ws://' + location.host;
@@ -103,90 +70,48 @@ angular.module('tutorial')
         }
     
         websocket.onmessage = function (event) {
-            var message = JSON.parse(event.data);
-            var button = $scope.tutorial[$scope.tutorialPage].button;
-            if (calculateBoolean(button.enablementRule, message)) {
+            let message = JSON.parse(event.data);
+
+            let button = $scope.tutorial[$scope.tutorialPage].button;
+            if (button.enablementRule && button.enablementRule.rule_type === 'REST_EVENT' && evaluateRuleSetAgainstEvent(button.enablementRule, message)) {
                 button.disabled = false;
                 if (!$scope.$$phase) {
                     $scope.$apply();
                 }
             }
+
+            let notifications = $scope.tutorial[$scope.tutorialPage].notifications;
+            notifications.forEach((notification, index) => {
+                if(notification.createWhen && notification.createWhen.rule_type === 'REST_EVENT' && evaluateRuleSetAgainstEvent(notification.createWhen, message)) {
+                    $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+                } else if(notification.destroyWhen && notification.destroyWhen.rule_type === 'REST_EVENT' && evaluateRuleSetAgainstEvent(notification.createWhen, message)) {
+                    $rootScope.$broadcast('removeNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+                }
+            })
         }
     }
     openWebSocket();
 
-    function changePage(newLocation, forward) {
+    $scope.changePage = (newLocation, forward) => {
         if (newLocation) {
             $scope.location = newLocation;
+            removeAllListeners();
+            $rootScope.$broadcast('removeAllNotifications');
         }
 
-        if (forward && $scope.tutorialPage < $scope.tutorial.length-1) {
-            $scope.tutorialPage += 1;
-        } else if (!forward && $scope.tutorialPage > 0) {
-            $scope.tutorialPage -= 1;
+        if ((forward > 0 && $scope.tutorialPage+forward <= $scope.tutorial.length-1) || (forward < 0 && $scope.tutorialPage+forward >= 0))  {
+            $scope.tutorialPage += forward;
         }
 
         if ($scope.tutorialPage < $scope.tutorial.length) {
-            $scope.tutorial[$scope.tutorialPage].steps[0].listener();
+            setupStageListeners($scope, $scope.tutorial[$scope.tutorialPage].steps[0].listeners, $scope.tutorialPage, 0);
         }
 
         if (!$scope.$$phase) {
             $scope.$apply(); 
         }
     }
-
-    function addiFrameEventListener(frameId, listenElement, listenType, pageNumber, stepNumber) {
-        var listenTo;
-        if (listenElement.startsWith('#')) {
-            listenTo = [getiFrame(frameId).getElementById(listenElement.substr(1))];
-
-        } else if (listenElement.startsWith('.')) {
-            listenTo = getiFrame(frameId).getElementsByClassName(listenElement.substr(1));
-            console.log(listenTo);
-        } else {
-            throw new Error('Element to listen against should start with # for ID or . for class.')
-        }
-
-        var listenAction = () => {
-            $scope.tutorial[pageNumber].steps[stepNumber].complete = true;
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-            if (stepNumber < $scope.tutorial[pageNumber].steps.length-1) {
-                $scope.tutorial[pageNumber].steps[stepNumber+1].listener();
-            }
-            for(var i = 0; i < listenTo.length; i++) {
-                listenTo[i].removeEventListener(listenType, listenAction);
-            }
-        };
-
-        for(var i = 0; i < listenTo.length; i++) {
-            listenTo[i].addEventListener(listenType, listenAction);
-        }
-    }
-
-    function addiFrameAttributeListener(frameId, listenElement, attributeToListen, pageNumber, stepNumber) {
-        var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-        var observer = new MutationObserver(function(mutations, observer) {
-            mutations.forEach(function(mutation) {
-              if (mutation.type == 'attributes') {
-                if (mutation.attributeName === attributeToListen) {
-                    $scope.tutorial[pageNumber].steps[stepNumber].complete = true;
-                    if (!$scope.$$phase) {
-                        $scope.$apply();
-                    }
-                    if (stepNumber < $scope.tutorial[pageNumber].steps.length-1) {
-                        $scope.tutorial[pageNumber].steps[stepNumber+1].listener();
-                    }
-                    observer.disconnect();
-                }
-              }
-            });
-        });
-        observer.observe(getiFrame(frameId).getElementById(listenElement), {
-            attributes: true //configure it to listen to attribute changes
-        });
-    }
+    
 
     $scope.$on('$destroy', function () {
         destroyed = true;
@@ -194,12 +119,14 @@ angular.module('tutorial')
 
 }]);
 
+var openListeners = [];
+
 function getiFrame(frameId) {
     let iframe = document.getElementById(frameId);
     return (iframe.contentDocument) ? iframe.contentDocument : iframe.contentWindow.document;
 };
 
-function calculateBoolean(rule, object) {
+function evaluateRuleSetAgainstEvent(rule, object) {
     
     var leftHand;
 
@@ -223,3 +150,193 @@ function calculateBoolean(rule, object) {
 
     return leftHand;
 }
+
+function checkAllRulesListenersComplete(ruleSet) {
+    function isComplete(rule) {
+        if(rule.combineWith) {
+            switch(rule.combineWith.connection) {
+                case 'AND': return rule.complete && isComplete(rule.combineWith.rule);
+                case 'OR': return rule.complete || isComplete(rule.combineWith.rule);
+                default: throw new Error('Connection value invalid', rule.combineWith.connection)
+            }
+        }
+        return rule.complete;
+    }
+    
+    return isComplete(ruleSet)
+}
+
+function setupObjectListeners(scope, ruleSet, completed) {
+    let relatedId = makeId();
+    function createListener(rule) {
+        if(rule.rule_type === 'LISTENER') {
+
+            let callback = () => {
+                rule.complete = true;
+
+                if (!scope.$$phase) {
+                    scope.$apply();
+                }
+
+                if (checkAllRulesListenersComplete(ruleSet)) {
+                    removeRelatedListeners(relatedId);
+                    completed();
+                }
+            }
+
+            switch(rule.type) {
+                case 'EVENT': addDomEventListener(rule.iFrame, rule.element, rule.listenFor, callback, relatedId); break;
+                case 'ATTRIBUTE': addAttributeListener(rule.iFrame, rule.element, rule.listenFor, callback, relatedId); break;
+            }
+        }
+
+        if (rule.combineWith) {
+            createListener(rule.combineWith.rule)
+        }
+    }
+    createListener(ruleSet)
+}
+
+function removeAllListeners() {
+    for (var i = openListeners.length-1; i >= 0; i--) {
+        var el = openListeners[i];
+        if (el.type === 'EventListener') {
+            el.element.removeEventListener(el.listenType, el.callback);
+            openListeners.splice(i, 1);
+        } else if (el.type === 'MutationObserver') {
+            el.observer.disconnect();
+            openListeners.splice(i, 1);
+        }
+    }
+}
+
+function removeRelatedListeners(relatedId) {
+    for (var i = openListeners.length-1; i >= 0; i--) {
+        var el = openListeners[i]
+        if(el.relatedId === relatedId) {
+            if (el.type === 'EventListener') {
+                el.element.removeEventListener(el.listenType, el.callback);
+                openListeners.splice(i, 1);
+            } else if (el.type === 'MutationObserver') {
+                el.observer.disconnect();
+                openListeners.splice(i, 1);
+            }
+        }
+    }
+}
+
+function setupStageListeners(scope, listenerDetails, pageNumber, stepNumber) {
+    let relatedId = makeId();
+    let callback = () => {
+        scope.tutorial[pageNumber].steps[stepNumber].complete = true;
+        if (!scope.$$phase) {
+            scope.$apply();
+        }
+        if (stepNumber < scope.tutorial[pageNumber].steps.length-1) {
+            removeRelatedListeners(relatedId);
+            setupStageListeners(scope, scope.tutorial[pageNumber].steps[stepNumber+1].listeners, pageNumber, stepNumber+1);
+        }
+    }
+
+    listenerDetails.forEach((listenerDef) => {
+        switch(listenerDef.type) {
+            case 'EVENT': addDomEventListener(listenerDef.iFrame, listenerDef.element, listenerDef.listenFor, callback, relatedId); break;
+            case 'ATTRIBUTE': addAttributeListener(listenerDef.iFrame, listenerDef.element, listenerDef.listenFor, callback, relatedId); break;
+        }
+    })
+}
+
+function addDomEventListener(frameId, listenElement, listenType, callback, relatedId) {
+    var listenTo;
+    var listenerId = makeId();
+    var listenIn = document;
+
+    if (frameId) {
+        listenIn = getiFrame(frameId)
+    }
+
+    if (listenElement.startsWith('#')) {
+        listenTo = [listenIn.getElementById(listenElement.substr(1))];
+
+    } else if (listenElement.startsWith('.')) {
+        listenTo = listenIn.getElementsByClassName(listenElement.substr(1));
+    } else {
+        throw new Error('Element to listen against should start with # for ID or . for class.')
+    }
+
+    var listenAction = () => {
+        callback();
+        for(var i = 0; i < listenTo.length; i++) {
+            openListeners.forEach((el, index, object) => {
+                if (el.id === listenerId) {
+                    object.splice(index, 1);
+                }
+            });
+            listenTo[i].removeEventListener(listenType, listenAction);
+        }
+    };
+
+    for(var i = 0; i < listenTo.length; i++) {
+        openListeners.push({
+            type: 'EventListener',
+            element: listenTo[i],
+            listenType: listenType,
+            callback: listenAction,
+            id: listenerId,
+            relatedId: relatedId
+        });
+        listenTo[i].addEventListener(listenType, listenAction);
+    }
+}
+
+function addAttributeListener(frameId, listenElement, attributeToListen, callback, relatedId) {
+    var listenerId = makeId();
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+    var observer = new MutationObserver(function(mutations, observer) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type == 'attributes') {
+            if (mutation.attributeName === attributeToListen) {
+                callback();
+                openListeners.forEach((el, index, object) => {
+                    if (el.id === listenerId) {
+                        object.splice(index, 1);
+                    }
+                });
+                observer.disconnect();
+            }
+          }
+        });
+    });
+
+    var listenTo;
+    var listenIn = document;
+
+    if (frameId) {
+        listenIn = getiFrame(frameId)
+    }
+
+    if (listenElement.startsWith('#')) {
+        listenTo = [listenIn.getElementById(listenElement.substr(1))];
+
+    } else if (listenElement.startsWith('.')) {
+        listenTo = listenIn.getElementsByClassName(listenElement.substr(1));
+    } else {
+        throw new Error('Element to listen against should start with # for ID or . for class.')
+    }
+
+    for(var i = 0; i < listenTo.length; i++) {
+        openListeners.push({
+            type: 'MutationObserver',
+            observer: observer,
+            id: listenerId,
+            relatedId: relatedId
+        });
+        observer.observe(listenTo[i], {
+            attributes: true //configure it to listen to attribute changes
+        });
+    }
+}
+
+function makeId() {
+    return Math.random().toString(36).substr(2, 10)
+  }
