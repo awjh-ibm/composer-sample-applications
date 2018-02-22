@@ -80,6 +80,6 @@ Rules are evaluated from right to left based on combines with such that if you h
 
 ### Example rule with a combination:
 
-`[ REST_EVENT | $class | EQUAL | org.base.UpdateOrderStatusEvent | AND => [ REST_EVENT | orderStatus | EQUAL | DELIVERED ] ]`
+`[ REST_EVENT | $class | EQUAL | org.acme.vehicle_network.UpdateOrderStatusEvent | AND => [ REST_EVENT | orderStatus | EQUAL | DELIVERED ] ]`
 
-True when the rest server produces an event that has property $class with the value 'org.base.UpdateOrderStatusEvent' and that event also has the property orderStatus with the value 'DEVLIVERED'.
+True when the rest server produces an event that has property $class with the value 'org.acme.vehicle_network.UpdateOrderStatusEvent' and that event also has the property orderStatus with the value 'DEVLIVERED'.

@@ -78,7 +78,7 @@ export class BuilderPage {
 
   purchase() {
     var vehicleDetails = {
-      make: 'resource:org.base.Manufacturer#Arium',
+      make: 'resource:org.acme.vehicle_network.Manufacturer#Arium',
       modelType: this.car.name,
       colour: this.states.colour
     };
@@ -91,9 +91,9 @@ export class BuilderPage {
      delete options.colour;
 
     var order = {
-      $class: 'org.base.PlaceOrder',
+      $class: 'org.acme.vehicle_network.PlaceOrder',
       vehicleDetails: vehicleDetails,
-      orderer: 'resource:org.base.Person#Paul',
+      orderer: 'resource:org.acme.vehicle_network.Person#Paul',
       options: options,
       orderId: this.generateID()
     };

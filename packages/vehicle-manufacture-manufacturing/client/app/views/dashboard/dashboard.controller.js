@@ -80,9 +80,9 @@ angular.module('bc-manufacturer')
 
     websocket.onmessage = function (event) {
       var message = JSON.parse(event.data);
-      if(message.$class === 'org.base.PlaceOrderEvent') {
+      if(message.$class === 'org.acme.vehicle_network.PlaceOrderEvent') {
         handlePlaceOrderEvent(message);
-      } else if (message.$class === 'org.base.UpdateOrderStatusEvent') {
+      } else if (message.$class === 'org.acme.vehicle_network.UpdateOrderStatusEvent') {
         handleUpdateOrderEvent(message);
       }
     }

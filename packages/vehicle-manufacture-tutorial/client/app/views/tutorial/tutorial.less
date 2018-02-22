@@ -1,3 +1,5 @@
+@import "../../../assets/stylesheets/colours.less";
+
 .tutorial {
     position: fixed;
     left: 0;
@@ -23,7 +25,7 @@
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            overflow: auto;
+            overflow: hidden;
 
             .loading {
                 &.hidden {
@@ -42,8 +44,20 @@
                 }
 
                 &.small {
-                    height: 667px;
-                    width: 375px;
+                    height: 800px;
+                    width: 450px;
+                    
+                    &:not(.hidden) {
+                        border: 3px solid @black;
+                    }
+
+                }
+
+                @media only screen and (min-height : 750px) and (max-height : 1000px) {
+                    &.small {
+                        height: 667px;
+                        width: 375px;
+                    }
                 }
 
                 @media only screen and (min-height : 650px) and (max-height : 750px) {

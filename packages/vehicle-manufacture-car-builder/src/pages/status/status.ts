@@ -59,7 +59,7 @@ export class StatusPage {
 
       websocket.onmessage = (event) => {
         var status = JSON.parse(event.data);
-        if (status.$class === 'org.base.UpdateOrderStatusEvent') {
+        if (status.$class === 'org.acme.vehicle_network.UpdateOrderStatusEvent') {
           let i = statuses.indexOf(status.orderStatus);
           this.stage[i] = this.relativeDate(status.timestamp, this.stage[0]);
         }

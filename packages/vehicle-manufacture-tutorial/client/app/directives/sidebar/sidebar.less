@@ -21,9 +21,9 @@
         &:before, &:after {
             position: absolute;
             left: 50%;
-            top: calc(50% - 12.5px);
+            top: calc(50% - 10px);
             content: ' ';
-            height: 27.5px;
+            height: 20px;
             width: 1px;
             background-color: @white;
         }
@@ -34,10 +34,6 @@
         &:after {
             transform: rotate(-45deg);
         }
-
-        &:hover {
-            background-color: @bright-blue;
-        }
     }
 		
 	#app-links {        
@@ -46,37 +42,43 @@
             color: @bright-blue;
             display: flex;
             flex-direction: row;
-            margin: 15px 0;
+            margin-bottom: 1px;
 
-            &:hover {
+            &.selectable:hover {
                 background-color: @bright-blue;
-                color: @white;
+                color: @dark-grey-blue;
                 .app-icon {
                     svg {
-                        fill: @white;
+                        fill: @dark-grey-blue;
                     }
                 }
             }
 
             &.selected {
                 background-color: @bright-blue;
-                color: @white;
+                color: @dark-grey-blue;
+                opacity: 1!important;
                 .app-icon {
                     svg {
-                        fill: @white;
+                        fill: @dark-grey-blue;
                     }
                 }
             }
 
+            &:not(.selectable) {
+                opacity: 0.5;
+                cursor: default;
+            }
+
             .app-icon {
                 width: @sidebar-contracted;
-                height: 25px;
-                padding: 10px 0;
+                height: 20px;
+                padding: calc((@sidebar-contracted - 20px)/2) 0;
                 text-align: center;
 
                 svg {
-                    height: 25px;
-                    width: 25px;
+                    height: 20px;
+                    width: 20px;
                     fill: @bright-blue;
                 }
             }
@@ -91,18 +93,58 @@
 	}
 	
 	#tutorial-text {
-        padding: 10px 25px;
+        padding: 25px 25px 10px 25px;
         flex: 1;
-        overflow: auto;
         color: @white;
         display: flex;
         flex-direction: column;
-        justify-content: end;
+        justify-content: start;
+        overflow: auto;
+        line-height: 1.5em;
+
+        &::-webkit-scrollbar {
+            width: 20px;
+        }
+        
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+            border-radius: 5px;
+            box-shadow: inset 0 0 10px 10px transparent;
+            border: solid 5px transparent;
+        }
+
+        &:hover {
+            &::-webkit-scrollbar {
+                width: 20px;
+            }
+            
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+                border-radius: 5px;
+                box-shadow: inset 0 0 10px 10px @pale-grey;
+                border: solid 5px transparent;
+            }
+        }
 
         .holder {
+            display: table; // FF FIX FOR IT NOT SCROLLING
+
             &:not(:first-child) {
                 margin-top: 25px;
             }
+
+            &:last-child {
+                min-height: 0; // FF FIX FOR IT NOT SCROLLING
+                display: flex; // FF FIX FOR IT NOT SCROLLING
+                flex-direction: column; // FF FIX FOR IT NOT SCROLLING
+            }
+
             &.complete {
                 td {
                     background-color: limegreen;
@@ -122,9 +164,9 @@
             display: inline-block;
             padding: 15px;
             background-color: transparent;
-            border: 1px solid @white;
+            border: 1px solid @bright-blue;
             cursor: pointer;
-            color: #FFF;
+            color: @bright-blue;
             font-size: 1em;
             font-family: @plainFont;
             font-weight: @light;
@@ -136,7 +178,7 @@
             }
 
             &:hover {
-                background-color: @white;
+                background-color: @bright-blue;
                 color: @dark-grey-blue;
             }
         }
@@ -148,7 +190,7 @@
             border-right: none;
 
             &:before, &:after {
-                height: 25px;
+                height: 20px;
             }
 
             &:before {

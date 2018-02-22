@@ -9,14 +9,22 @@ tut-header {
     display: flex;
     flex-direction: row;
     width: 100%;
+    font-size: 0.9em;
 
     div {
 
         display: flex;
-        align-items: center;
+        align-items: flex-start;
 
         b {
             font-weight: @bold;
+            
+            &.addSpace {
+                &::after {
+                    content: ' ';
+                    white-space: pre;
+                }
+            }
         }
 
         &:first-child {
@@ -25,14 +33,14 @@ tut-header {
 
         &:last-child {
             svg {
-                height: 25px;
-                width: 25px;
+                height: 1.1em;
+                width: 1.1em;
                 fill: @grey;
             }
         }
 
         .pipe {
-            height: 1em;
+            height: 0.9em;
             width: 1px;
             background-color: @grey;
             margin: 0 1em;

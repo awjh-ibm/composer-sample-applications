@@ -25,11 +25,11 @@ angular.module('bc-vda')
                                     displayTransaction = true;
                                     break;
 
-          case 'PlaceOrder':        transactionSubmitter = transaction.eventsEmitted[0].orderer.replace('resource:org.base.Person#', '');
+          case 'PlaceOrder':        transactionSubmitter = transaction.eventsEmitted[0].orderer.replace('resource:org.acme.vehicle_network.Person#', '');
                                     displayTransaction = true;
                                     break;
 
-          case 'UpdateOrderStatus': transactionSubmitter = transaction.eventsEmitted[0].order.vehicleDetails.make.replace('resource:org.base.Manufacturer#', '');
+          case 'UpdateOrderStatus': transactionSubmitter = transaction.eventsEmitted[0].order.vehicleDetails.make.replace('resource:org.acme.vehicle_network.Manufacturer#', '');
                                     displayTransaction = true;
                                     orderStatus = transaction.eventsEmitted[0].orderStatus;
                                     break;
@@ -86,9 +86,9 @@ angular.module('bc-vda')
 
     websocket.onmessage = function (event) {
       var message = JSON.parse(event.data);
-      var caller = message.orderer ? message.orderer.replace('resource:org.base.Person#', '') : message.order.vehicleDetails.make.replace('resource:org.base.Manufacturer#', '');
+      var caller = message.orderer ? message.orderer.replace('resource:org.acme.vehicle_network.Person#', '') : message.order.vehicleDetails.make.replace('resource:org.acme.vehicle_network.Manufacturer#', '');
       var status = message.order ? message.orderStatus : null;
-      $scope.addBlock(message.eventId.split('#')[0], message.$class.replace('org.base.', '').replace('Event', ''), caller, status);
+      $scope.addBlock(message.eventId.split('#')[0], message.$class.replace('org.acme.vehicle_network.', '').replace('Event', ''), caller, status);
       $scope.$apply();
     }
   }

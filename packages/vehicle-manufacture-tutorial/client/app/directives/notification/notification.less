@@ -11,6 +11,7 @@
     position: absolute;
     box-sizing: border-box;
     box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
 
     &.top {
         top: calc(70px + 1em);
@@ -48,14 +49,15 @@
         right: 10px;
         top: 10px;
         cursor: pointer;
-        height: 15px;
-        width: 15px;
+        height: 12px;
+        width: 12px;
+        opacity: 0.5;
 
         &:before, &:after {
             position: absolute;
-            left: 7px;
+            left: 6px;
             content: ' ';
-            height: 15px;
+            height: 12px;
             width: 2px;
             background-color: @black;
         }
@@ -68,10 +70,7 @@
         }
 
         &:hover {
-
-            &:before, &:after {
-                width: 2.5px;
-            }
+            opacity: 1;
         }
     }
 }

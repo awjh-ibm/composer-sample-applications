@@ -28,7 +28,7 @@ var get = (req, res) => {
               var update = updates[i];
               var updatingId;
               if (typeof update.order === 'string') {
-                updatingId = update.order.replace('resource:org.base.Order#', '');
+                updatingId = update.order.replace('resource:org.acme.vehicle_network.Order#', '');
               } else if (typeof update.order === 'object') {
                 // order has been resolved
                 updatingId = update.order.orderId;

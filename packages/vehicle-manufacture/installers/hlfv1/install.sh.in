@@ -156,7 +156,7 @@ docker run \
   --network composer_default \
   -v $(pwd)/.vld-card-store:/home/composer/.composer \
   hyperledger/composer-cli:{{COMPOSER-VERSION}} \
-  transaction submit -c admin@vehicle-manufacture-network -d '{"$class": "org.base.SetupDemo"}'
+  transaction submit -c admin@vehicle-manufacture-network -d '{"$class": "org.acme.vehicle_network.SetupDemo"}'
 
 # correct permissions so that node-red can read cardstore and node-sdk can write to client-data
 docker exec \

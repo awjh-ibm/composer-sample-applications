@@ -34,7 +34,7 @@ var post = (req, res) => {
     headers: {
        'Content-Type': 'application/json'
     },
-    body: Object.assign({'$class': 'org.base.UpdateOrderStatus'}, req.body),
+    body: Object.assign({'$class': 'org.acme.vehicle_network.UpdateOrderStatus'}, req.body),
     json: true
   };
 

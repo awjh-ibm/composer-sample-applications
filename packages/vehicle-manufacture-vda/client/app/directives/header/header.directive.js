@@ -49,7 +49,7 @@ angular.module('bc-vda')
 
         websocket.onmessage = function (event) {
           var message = JSON.parse(event.data);
-          if (message.$class = 'org.base.UpdateOrderStatusEvent') {
+          if (message.$class = 'org.acme.vehicle_network.UpdateOrderStatusEvent') {
             if (message.orderStatus === 'VIN_ASSIGNED') {
               scope.registered_vehicles++;
               scope.vin_assigned++;

@@ -4,6 +4,7 @@ angular.module('tutorial')
     var destroyed = false;
     $scope.location = '/car-builder';    
     $scope.ready = false;
+    $scope.mode = 'normal';
     $scope.tutorialPage = 0;
     $scope.notifications = [];
     
@@ -25,22 +26,17 @@ angular.module('tutorial')
                 $scope.$apply();
             }
 
-            $scope.tutorial[0].notifications.forEach((notification, index) => {
+            setupNotifications($scope, $rootScope, 0);
 
-                if(!notification.createWhen) {
-                    $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
-                } else if(notification.createWhen.rule_type === 'LISTENER') {
-                    setupObjectListeners($scope, notification.createWhen, () => {
-                        $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
-                    });
+            let setMode = () => {
+                $scope.mode = 'tutorial';
+                if(!$scope.$$phase) {
+                    $scope.$apply();
                 }
+                document.getElementsByClassName('tutorial-button')[0].removeEventListener('click', this);
+            }
 
-                if(notification.destroyWhen && notification.destroyWhen.rule_type === 'LISTENER') {
-                    setupObjectListeners($scope, notification.destroyWhen, () => {
-                        $rootScope.$broadcast('removeNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
-                    });
-                }
-            });
+            document.getElementsByClassName('tutorial-button')[0].addEventListener('click', setMode);
 
             if($scope, $scope.tutorial[0].button.enablementRule) {
                 setupObjectListeners($scope, $scope.tutorial[0].button.enablementRule, () => {
@@ -103,8 +99,9 @@ angular.module('tutorial')
             $scope.tutorialPage += forward;
         }
 
-        if ($scope.tutorialPage < $scope.tutorial.length) {
+        if ($scope.tutorial[$scope.tutorialPage]) {
             setupStageListeners($scope, $scope.tutorial[$scope.tutorialPage].steps[0].listeners, $scope.tutorialPage, 0);
+            setupNotifications($scope, $rootScope, $scope.tutorialPage);
         }
 
         if (!$scope.$$phase) {
@@ -120,6 +117,25 @@ angular.module('tutorial')
 }]);
 
 var openListeners = [];
+
+function setupNotifications($scope, $rootScope, pageNumber) {
+    $scope.tutorial[pageNumber].notifications.forEach((notification, index) => {
+
+        if(!notification.createWhen) {
+            $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+        } else if(notification.createWhen.rule_type === 'LISTENER') {
+            setupObjectListeners($scope, notification.createWhen, () => {
+                $rootScope.$broadcast('addNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+            });
+        }
+
+        if(notification.destroyWhen && notification.destroyWhen.rule_type === 'LISTENER') {
+            setupObjectListeners($scope, notification.destroyWhen, () => {
+                $rootScope.$broadcast('removeNotification', [notification.title, notification.text, notification.vertical, notification.horizontal]);
+            });
+        }
+    });
+}
 
 function getiFrame(frameId) {
     let iframe = document.getElementById(frameId);
@@ -142,8 +158,8 @@ function evaluateRuleSetAgainstEvent(rule, object) {
 
     if (rule.combineWith) {
         switch(rule.combineWith.connection) {
-            case 'AND': return leftHand && calculateBoolean(rule.combineWith.rule, object);
-            case 'OR': return leftHand || calculateBoolean(rule.combineWith.rule, object);
+            case 'AND': return leftHand && evaluateRuleSetAgainstEvent(rule.combineWith.rule, object);
+            case 'OR': return leftHand || evaluateRuleSetAgainstEvent(rule.combineWith.rule, object);
             default: throw new Error('Connection value invalid', rule.combineWith.connection)
         }
     }
