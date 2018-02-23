@@ -29,9 +29,6 @@ var post = (req, res) => {
   var options = {
     method: 'POST',
     url: endpoint,
-    qs: {
-      access_token: restServerConfig.accessToken
-    },
     headers: {
        'Content-Type': 'application/json'
     },

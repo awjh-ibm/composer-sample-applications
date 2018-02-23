@@ -118,7 +118,7 @@ export class BuilderPage {
           console.log('RESPONSE TEXT', this.responseText);
         }
       });
-      xhr.open("POST", this.config.restServer.httpURL+"/PlaceOrder?access_token="+this.config.restServer.accessToken);
+      xhr.open("POST", this.config.restServer.httpURL+"/PlaceOrder");
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.send(data);
       document.getElementById('purchase').getElementsByTagName('span')[0].innerHTML = 'Sending request...';

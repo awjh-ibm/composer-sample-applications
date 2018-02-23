@@ -29,7 +29,7 @@ Location localhost:6005
 ## VDA Screen
 The VDA screen allows the regulator of the business network to keep track of the actions that are being performed on the network. It displays to them a view of the transactions that have occurred on the blockchain including details such as the time they occurred, their ID, what was performed and by who. It also displays the total number of registered vehicles they are regulating and which of these have their VIN's assigned and a registered owner.
 
-Location localhost:6001
+Location localhost:6006
 
 ## Using this demo
 Running this demo is performed within your web browser using the addresses specified above for each application. Begin by loading a tab or window in your browser for each of the applications.

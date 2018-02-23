@@ -5,12 +5,13 @@ angular.module('bc-vda')
   $scope.chain = [];
   $scope.transactions = [];
 
+  var baseId = 138;
+
   $http.get('transactions')
   .then(function(response, err) {
     if (err) {
       console.log(err);
     } else if (Array.isArray(response.data)) {
-      var i = 138;
 
       $scope.chain = response.data.map(function(transaction) {
         var split = transaction.transactionType.split('.');
@@ -60,7 +61,7 @@ angular.module('bc-vda')
       })
 
       $scope.chain.map(function(transaction) {
-        transaction.id = i++;
+        transaction.id = baseId++;
         return transaction;
       })
     }
@@ -96,7 +97,12 @@ angular.module('bc-vda')
   openWebSocket();
 
   $scope.addBlock = function (tranactionId, type, submitter, status) {
-    var id = $scope.chain[$scope.chain.length - 1].id + 1;
+    var id = baseId;
+
+    if($scope.chain.length - 1 > 0) {
+      id = $scope.chain[$scope.chain.length - 1].id + 1;
+    }
+
     $scope.chain.push({
       id: id,
       transID: tranactionId,
