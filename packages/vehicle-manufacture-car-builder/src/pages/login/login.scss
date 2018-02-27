@@ -37,18 +37,13 @@ page-login {
         flex-direction: column;
         align-items: center;
 
-        .logo, .picture {
+        .logo {
           display: block;
           margin-bottom: 5vh;
         }
 
         .logo {
           height: 50px;
-        }
-
-        .picture {
-          height: 100px;
-          width: 100px;
         }
         
         h2 {

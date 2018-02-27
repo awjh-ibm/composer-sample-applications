@@ -162,14 +162,10 @@ ion-app {
           color: white;
           display: flex;
           align-items: center;
-          justify-content: center;
+          justify-content: space-between;
 
           .logo {
             height: 25px;
-          }
-
-          .paul {
-            height: 37px;
           }
 
           @media (min-width: $ipad) {
@@ -179,13 +175,9 @@ ion-app {
               margin-left: 40px;
             }
 
-            .paul {
+            h1 {
               margin-right: 40px;
             }
-          }
-
-          h1 {
-            margin: 0 68px 0 85px;
           }
         }
       }
