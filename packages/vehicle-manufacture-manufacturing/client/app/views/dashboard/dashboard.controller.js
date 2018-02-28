@@ -3,7 +3,22 @@ angular.module('bc-manufacturer')
 .controller('DashboardCtrl', ['$scope', '$http', '$interval', function ($scope, $http, $interval) {
   $scope.statuses = ['PLACED', 'SCHEDULED_FOR_MANUFACTURE', 'VIN_ASSIGNED', 'OWNER_ASSIGNED', 'DELIVERED'];
 
-  $http.get('orders').then(function(response, err) {
+  var orderUrl = '/orders';
+  var ignoreTxnsBefore;
+
+  if(supports_html5_storage()) {
+    try {
+      ignoreTxnsBefore = localStorage.getItem('ignoreTxnsBefore');
+      if (ignoreTxnsBefore) {
+        ignoreTxnsBefore = Date.parse(ignoreTxnsBefore);
+        orderUrl = '/orders?notBefore='+ignoreTxnsBefore;
+      }
+    } catch (err) {
+      console.error('Local storage item not a date', err);
+    }
+  }
+
+  $http.get(orderUrl).then(function(response, err) {
     if (err) {
       console.log(err);
     } else if (response.data.error) {
@@ -79,6 +94,10 @@ angular.module('bc-manufacturer')
     }
 
     websocket.onmessage = function (event) {
+      if (ignoreTxnsBefore && new Date().getTime() < ignoreTxnsBefore) {
+        return;
+      }
+
       var message = JSON.parse(event.data);
       if(message.$class === 'org.acme.vehicle_network.PlaceOrderEvent') {
         handlePlaceOrderEvent(message);
@@ -204,3 +223,11 @@ angular.module('bc-manufacturer')
     }
   };
 })
+
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}

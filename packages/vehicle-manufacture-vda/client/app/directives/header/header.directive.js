@@ -9,19 +9,27 @@ angular.module('bc-vda')
       scope.vin_assigned = 0;
       scope.v5c_issued = 0;
 
-      $http.get('/vehicles').then(function(response) {
+      var vehicleUrl = '/vehicles';
+      var ignoreTxnsBefore;
+
+      if(supports_html5_storage()) {
+        try {
+          ignoreTxnsBefore = localStorage.getItem('ignoreTxnsBefore');
+          if (ignoreTxnsBefore) {
+            ignoreTxnsBefore = Date.parse(ignoreTxnsBefore);
+            vehicleUrl = '/vehicles?notBefore='+ignoreTxnsBefore;
+          }
+        } catch (err) {
+          console.error('Local storage item not a date', err);
+        }
+      }
+
+      $http.get(vehicleUrl).then(function(response) {
 
         if (response && response.data) {
-          for (var i = 0; i < response.data.length; ++i) {
-            var vehicle = response.data[i];
-
-            scope.registered_vehicles++;
-            scope.vin_assigned++; // all registered vehicles have a vin;
-
-            if (vehicle.owner) {
-              scope.v5c_issued++;
-            }
-          }
+            scope.registered_vehicles = response.data.registered_vehicles;
+            scope.vin_assigned = response.data.vin_assigned;
+            scope.v5c_issued= response.data.v5c_issued;
         }
       });
 
@@ -48,6 +56,11 @@ angular.module('bc-vda')
         }
 
         websocket.onmessage = function (event) {
+
+          if (ignoreTxnsBefore && new Date().getTime() < ignoreTxnsBefore) {
+            return;
+          }
+
           var message = JSON.parse(event.data);
           if (message.$class = 'org.acme.vehicle_network.UpdateOrderStatusEvent') {
             if (message.orderStatus === 'VIN_ASSIGNED') {

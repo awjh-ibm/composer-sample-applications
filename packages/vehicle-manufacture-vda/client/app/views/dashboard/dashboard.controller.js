@@ -7,7 +7,22 @@ angular.module('bc-vda')
 
   var baseId = 138;
 
-  $http.get('transactions')
+  var txUrl = '/transactions';
+  var ignoreTxnsBefore;
+
+  if(supports_html5_storage()) {
+    try {
+      ignoreTxnsBefore = localStorage.getItem('ignoreTxnsBefore');
+      if (ignoreTxnsBefore) {
+        ignoreTxnsBefore = Date.parse(ignoreTxnsBefore);
+        txUrl = '/transactions?notBefore='+ignoreTxnsBefore;
+      }
+    } catch (err) {
+      console.error('Local storage item not a date', err);
+    }
+  }
+
+  $http.get(txUrl)
   .then(function(response, err) {
     if (err) {
       console.log(err);
@@ -86,6 +101,11 @@ angular.module('bc-vda')
     }
 
     websocket.onmessage = function (event) {
+
+      if (ignoreTxnsBefore && new Date().getTime() < ignoreTxnsBefore) {
+        return;
+      }
+
       var message = JSON.parse(event.data);
       var caller = message.orderer ? message.orderer.replace('resource:org.acme.vehicle_network.Person#', '') : message.order.vehicleDetails.make.replace('resource:org.acme.vehicle_network.Manufacturer#', '');
       var status = message.order ? message.orderStatus : null;
@@ -99,7 +119,7 @@ angular.module('bc-vda')
   $scope.addBlock = function (tranactionId, type, submitter, status) {
     var id = baseId;
 
-    if($scope.chain.length - 1 > 0) {
+    if($scope.chain.length - 1 >= 0) {
       id = $scope.chain[$scope.chain.length - 1].id + 1;
     }
 
@@ -124,3 +144,11 @@ angular.module('bc-vda')
     }
   });
 }]);
+
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}

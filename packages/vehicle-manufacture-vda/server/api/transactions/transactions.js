@@ -11,6 +11,15 @@ var get = (req, res) => {
     url: endpoint,
     json: true
   }, (err, response, body) => {
+
+    body = body.filter((transaction) => {
+      var time = Date.parse(transaction.transactionTimestamp);
+      if (req.query.notBefore && time < req.query.notBefore) {
+        return false;
+      }
+      return true;
+    });
+
     res.send(body)
   })
 }

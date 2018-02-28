@@ -6,10 +6,27 @@ var get = (req, res) => {
   var restServerConfig = req.app.get('config').restServer;
   var composerBaseURL = restServerConfig.httpURL;
   var placeOrderEndpoint = composerBaseURL + '/PlaceOrder';
+
+  var filter = {};
+
+  var notBefore = req.query.notBefore;
+
+  if(notBefore) {
+    var date = new Date();
+    date.setTime(notBefore);
+    filter = {
+      "where": {
+        "timestamp": {
+          "gt": date.toISOString()
+        }
+      }
+    }
+  }
+
   var updateOrderEndpoint = composerBaseURL + '/UpdateOrderStatus'
 
   request.get({
-    url: placeOrderEndpoint,
+    url: `${placeOrderEndpoint}?filter=${JSON.stringify(filter)}`,
     json: true
   }, (err, response, placedOrders) => {
     if (err) {
@@ -17,7 +34,7 @@ var get = (req, res) => {
       return;
     }
     request.get({
-      url: updateOrderEndpoint,
+      url: `${updateOrderEndpoint}?filter=${JSON.stringify(filter)}`,
       json: true
     }, (err, response, updates) => {
       if (Array.isArray(placedOrders) && Array.isArray(updates)) {
