@@ -241,8 +241,21 @@ page-builder {
 
       .button-inner {
         justify-content: center;
-        margin-left: 16px;
+        display: flex;
+
+        img {
+          margin-right: 0;
+        }
       }
+    }
+  }
+}
+
+@media screen and (max-width: 220px) {
+  page-builder {
+    ion-card.card {
+      margin: 12px 10px!important;
+      width: calc(100% - 20px)!important;
     }
   }
 }
