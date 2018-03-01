@@ -33,8 +33,16 @@ angular.module('bc-manufacturer')
               serial: 'S/N ' + generateSN(),
               colour: o.vehicleDetails.colour
             },
+            configuration: {
+              trim: o.options.trim,
+              interior: o.options.interior,
+              colour: o.vehicleDetails.colour,
+              extras: o.options.extras
+            },
             placed: Date.parse(o.timestamp)
           };
+
+          order.status = $scope.statuses[0];
 
           if (o.statusUpdates) {
             o.statusUpdates.sort(function (a,b) {
@@ -69,6 +77,15 @@ angular.module('bc-manufacturer')
 
           return order;
         });
+
+        $scope.orders.sort((a, b) => {
+          if (a.placed < b.placed) {
+            return 1;
+          } else if (a.placed > b.placed) {
+            return -1;
+          }
+          return 0;
+        })
       }
     }
   })
@@ -108,12 +125,18 @@ angular.module('bc-manufacturer')
   }
 
   function handlePlaceOrderEvent(newOrder) {
-    $scope.orders.push({
+    $scope.orders.unshift({
       car: {
         id: newOrder.orderId,
         name: newOrder.vehicleDetails.modelType,
         serial: 'S/N ' + generateSN(),
         colour: newOrder.vehicleDetails.colour
+      },
+      configuration: {
+        trim: newOrder.options.trim,
+        interior: newOrder.options.interior,
+        colour: newOrder.vehicleDetails.colour,
+        extras: newOrder.options.extras
       },
       status: $scope.statuses[0],
       placed: Date.now()

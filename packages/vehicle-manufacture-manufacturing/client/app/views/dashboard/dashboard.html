@@ -1,104 +1,139 @@
 <bc-man-sidebar></bc-man-sidebar>
 
-<div class="bc-man-dashboard">
+<div class="bc-man-dashboard" >
   <h1>
     Dashboard
     <div class="search">
       <input type="text" name="search" placeholder="Search Arium"></input>
-      <img src="/manufacturer/assets/images/paul.png" alt="Profile">
     </div>
   </h1>
 
-  <div>
-    <h5>Currently In Production</h5>
+  <h5>Currently in production</h5>
 
-    <div class="bc-man-production">
-      <div ng-repeat="order in orders | orderBy : '-placed' | limitTo : 5">
-        <div class="card">
-          <div class="card-block">
-            <div class="card-header">
+  <div class="report-section" >
+    <div class="left" ng-if="orders.length > 0" >
+      <div class="big-card card">
+        <div class="card-block">
+            <div class="card-header order-summary">
               <div>
-                <h5>Order</h5>
-                <h3><strong>Arium</strong> {{order.car.name}}</h3>
-
-                <p style="margin-bottom: 5px;">{{order.placed | date : 'dd MMM yyyy'}}</p>
-                <p style="margin: 0 0 5px;">{{order.car.serial}}</p>
+                  <h5>Order</h5>
+                  <h3><strong>Arium </strong>{{orders[0].car.name}}</h3>
+                  <p style="margin-bottom: 5px;">{{orders[0].placed | date : 'dd MMM yyyy'}}</p>
+                  <p style="margin: 10px 0 5px;">{{orders[0].car.serial}}</p>
+                  <p ng-if="orders[0].status === statuses[0]" class="status status-yellow">
+                    <span class="fade field">Order Received</span>
+                  </p>
+                  <p ng-if="orders[0].status !== statuses[0] && orders[0].status !== statuses[4]" class="status status-yellow">
+                    <span class="fade field">Incomplete</span>
+                  </p>
+                  <p ng-if="orders[0].status === statuses[4]" class="status status-green">
+                    <span class="fade field">Complete</span>
+                  </p>
               </div>
-
-              <div class="swatch" ng-class="{'orange': order.car.colour === 'sunburst orange', 'red': order.car.colour === 'inferno red', 'purple': order.car.colour === 'royal purple', 'green': order.car.colour === 'alpine green', 'blue': order.car.colour === 'statement blue', 'grape': order.car.colour === 'vibrant grape'}"></div>
+              <div class="swatch" ng-class="{'orange': orders[0].car.colour === 'sunburst orange', 'red': orders[0].car.colour === 'inferno red', 'purple': orders[0].car.colour === 'royal purple', 'green': orders[0].car.colour === 'alpine green', 'blue': orders[0].car.colour === 'statement blue', 'grape': orders[0].car.colour === 'vibrant grape'}"></div>
             </div>
-
-            <p ng-if="order.status === statuses[0]" class="status status-yellow">
-              <span class="fade">Order Received</span>
+        </div>
+        <hr ng-if="orders[0].manufacture">
+        <div ng-if="orders[0].manufacture" class="card-block">
+          <div class="card-header">
+              <h5>Detail</h5>
+              <h3 style="text-transform: uppercase"><strong>Manufacture</strong></h3>
+          </div>
+          <p class="status" ng-class="orders[0].manufacture.chassis ? 'status-green' : 'status-red'">
+            <span class="field">Chassis</span><span class="data">{{orders[0].manufacture.chassis | relativeDate : orders[0].placed}}</span>
+          </p>
+          <p class="status" ng-class="orders[0].manufacture.vinIssue ? 'status-green' : 'status-red'">
+            <span class="field">VIN Issue</span><span class="data">{{orders[0].manufacture.vinIssue | relativeDate : orders[0].placed}}</span>
+          </p>
+          <p class="status" ng-class="orders[0].manufacture.vinPrinting ? 'status-green' : 'status-red'">
+            <span class="field">Owner Assigned</span><span class="data">{{orders[0].manufacture.vinPrinting | relativeDate : orders[0].placed}}</span>
+          </p>
+          <p class="status" ng-class="orders[0].manufacture.interior ? 'status-green' : 'status-red'">
+            <span class="field">Interior</span><span class="data">{{orders[0].manufacture.interior | relativeDate : orders[0].placed}}</span>
+          </p>
+          <p class="status" ng-class="orders[0].manufacture.paint ? 'status-green' : 'status-red'">
+            <span class="field">Paint</span><span class="data">{{orders[0].manufacture.paint | relativeDate : orders[0].placed}}</span>
+          </p>
+        </div>
+        <hr ng-if="orders[0].manufacture">
+        <div ng-if="orders[0].manufacture" class="card-block" >
+          <div class="card-header">
+            <h5>Order</h5>
+            <h3 style="text-transform: uppercase"><strong>Configuration</strong></h3>
+          </div>
+          <div class="column" >
+            <p class="conf-data" >
+              <span class="field">{{ orders[0].configuration.trim }}</span><span class="data">Trim</span>
             </p>
-            <p ng-if="order.status !== statuses[0] && order.status !== statuses[4]" class="status status-yellow">
-              <span class="fade">Incomplete</span>
+            <p class="conf-data" >
+              <span class="field">{{ orders[0].configuration.interior }}</span><span class="data">Interior</span>
             </p>
-            <p ng-if="order.status === statuses[4]" class="status status-green">
-              <span class="fade">Complete</span>
+            <p class="conf-data" >
+              <span class="field">{{ orders[0].configuration.colour }}</span><span class="data">Colour</span>
             </p>
           </div>
-
-          <hr ng-if="order.manufacture" />
-
-          <div class="card-block" ng-if="order.manufacture">
-            <h5 class="card-title">Manufacture</h5>
-
-            <ul>
-              <li class="status" ng-class="order.manufacture.chassis ? 'status-green' : 'status-red'">
-                <span>Chassis</span>
-                <span class="date fade">{{order.manufacture.chassis | relativeDate : order.placed}}</span>
-              </li>
-              <li class="status" ng-class="order.manufacture.vinIssue ? 'status-green' : 'status-red'">
-                <span>VIN Issue</span>
-                <span class="date fade">{{order.manufacture.vinIssue | relativeDate : order.placed}}</span>
-              </li>
-              <li class="status" ng-class="order.manufacture.vinPrinting ? 'status-green' : 'status-red'">
-                <span>Owner Assigned</span>
-                <span class="date fade">{{order.manufacture.vinPrinting | relativeDate : order.placed}}</span>
-              </li>
-              <li class="status" ng-class="order.manufacture.interior ? 'status-green' : 'status-red'">
-                <span>Interior</span>
-                <span class="date fade">{{order.manufacture.interior | relativeDate : order.placed}}</span>
-              </li>
-              <li class="status" ng-class="order.manufacture.paint ? 'status-green' : 'status-red'">
-                <span>Paint</span>
-                <span class="date fade">{{order.manufacture.paint | relativeDate : order.placed}}</span>
-              </li>
-            </ul>
-          </div>
-
-          <hr ng-if="order.delivery" />
-
-          <div ng-if="order.delivery" class="card-block">
-            <h5 class="card-title">Delivery</h5>
-
-            <ul>
-              <li class="status" ng-class="order.delivery.shipping ? 'status-green' : 'status-red'">
-                <span>Shipping</span>
-                <span class="date fade">{{order.delivery.shipping | relativeDate : order.placed}}</span>
-              </li>
-            </ul>
+          <div class="column" >
+            <p class="conf-data" ng-repeat="extra in orders[0].configuration.extras" >
+                <span class="field">{{ extra }}</span><span class="data">Extra</span>
+            </p>
           </div>
         </div>
-
-        <div class="card card-secondary card-manufacture" ng-if="!order.manufacture">
+        <hr ng-if="orders[0].delivery">
+        <div ng-if="orders[0].delivery" class="card-block" >
+          <h3 style="text-transform: uppercase"><strong>Delivery
+          </strong></h3>
+          <p class="status" ng-class="orders[0].delivery.shipping ? 'status-green' : 'status-red'" >
+            <span class="field">Shipping</span><span class="data">{{orders[0].delivery.shipping | relativeDate : orders[0].placed}}</span>
+          </p>
+        </div>
+      </div>
+      <div class="bottom-holder" ng-if="!orders[0].manufacture" >
+        <div class="card card-secondary card-manufacture">
           <div class="card-block">
             <h5 class="card-title">Manufacture</h5>
-
-            <button class="start-manufacture btn btn-primary" ng-click="start(order)">Start Manufacture</button>
+            <button class="start-manufacture btn btn-primary" ng-click="start(orders[0])">Start Manufacture</button>
           </div>
         </div>
-
-        <div class="card card-secondary card-delivery" ng-if="!order.delivery">
+      </div>
+      <div ng-if="!orders[0].delivery && orders[0].manufacture" class="bottom-holder" >
+        <div class="card card-secondary">
           <div class="card-block">
             <h5 class="card-title">Delivery</h5>
+            <h3>The status of this vehicle is currently not suitable for delivery.</h3>
           </div>
         </div>
       </div>
     </div>
+    <div class="right" >
+      <div class="card" ng-repeat="order in orders.slice(1) | orderBy : '-placed' | limitTo : 4" >
+          <div class="card-block">
+              <div class="card-header">
+                  <h5>Order</h5>
+                  <h3><strong>Arium </strong>{{ order.car.name }}</h3>
+                  <p style="margin: 10px 0 5px;">{{ order.car.serial }}</p>
+              </div>
+              <p ng-if="order.status === statuses[0]" class="status status-yellow">
+                <span class="fade field">Order Received</span>
+              </p>
+              <p ng-if="order.status !== statuses[0] && order.status !== statuses[4]" class="status status-yellow">
+                <span class="fade field">Incomplete</span>
+              </p>
+              <p ng-if="order.status === statuses[4]" class="status status-green">
+                <span class="fade field">Complete</span>
+              </p>
+          </div>
+      </div>
+      <div ng-if=" orders.length - 5 > 0" class="card not-shown" >
+          <div class="card-block">
+              <div class="card-header">
+                <h5>+ {{ orders.length - 5 }} MORE</h5>
+              </div>
+            </div>
+          </div>
+    </div>
   </div>
-
+</div>
+</div>
   <div>
     <div class="bc-man-overview">
       <h5>
