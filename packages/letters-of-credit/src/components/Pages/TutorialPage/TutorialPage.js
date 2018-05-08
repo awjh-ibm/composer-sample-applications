@@ -61,7 +61,7 @@ class TutorialPage extends Component {
                 
                 <h2 id="exporterapproval">Exporter approval</h2>
                 
-                <p>Now that the letter of credit has been approved by both the issuing bank and the exporter it is now visible to Bob. Navigate to Bob's screen and click 'View Letter of Credit'.</p>
+                <p>Now that the letter of credit has been approved by both the issuing bank and the exporter it is now visible to Bob. Navigate to Bob's screen and click the arrow on the letter of credit.</p>
                 
                 <p>Review the product details and terms and conditions are acceptable and then accept the application by clicking 'I accept the application' and pressing 'Yes' to the modal warning.</p>
                 
@@ -81,7 +81,7 @@ class TutorialPage extends Component {
                 
                 <h2 id="issuingpayment">Issuing payment</h2>
                 
-                <p>Once Alice has marked the goods as received Matías is alerted to this through his employee banking application. The issuing bank will then performs their own check on the goods and pay the letter of credit if they agree that they match the terms laid out in the letter of credit.</p>
+                <p>Once Alice has marked the goods as received Matías can see see this through his employee banking application. The issuing bank will then perform their own check on the goods and pay the letter of credit if they agree that they match the terms laid out in the letter of credit.</p>
                 
                 <p>On Matías' screen click the letter of credit and press 'Ready for payment' and press 'Yes' to the modal warning.</p>
                 
